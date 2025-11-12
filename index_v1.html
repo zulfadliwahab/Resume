@@ -1,1 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Resume: Muhammad Zulfadli</title>
+    <link rel="icon" type="image/x-icon" href="https://placehold.co/120x120/005A9E/FFFFFF?text=MZ">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            overflow-x: hidden;
+            margin: 0;
+        }
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* General Card Styling (for header, summary, etc.) */
+        .static-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out; /* Only for reveal */
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            will-change: transform, opacity;
+        }
+        .static-card.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-header {
+            background-color: #005A9E; /* Alcon blue */
+            color: white;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .card-content {
+            padding: 24px;
+        }
+        .education-item, .work-experience-item { /* Combined styling for list items */
+            margin-bottom: 1.25rem; /* Increased margin */
+            padding-bottom: 1.25rem; /* Increased padding */
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .education-item:last-child, .work-experience-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .item-title { /* For Education Degree and Work Role */
+            font-weight: 700; /* Bolder */
+            color: #1f2937; 
+            font-size: 1.15rem; /* Slightly larger */
+        }
+        .work-experience-item .item-title { /* Make work role clickable */
+            cursor: pointer;
+            color: #005A9E; /* Alcon blue to indicate clickability */
+            transition: color 0.2s ease-in-out;
+        }
+        .work-experience-item .item-title:hover {
+            color: #003366; /* Darker Alcon blue on hover */
+            text-decoration: underline;
+        }
+        .item-subtitle { /* For University and Work Company */
+            color: #374151; /* Tailwind gray-700 for better contrast */
+            font-size: 1rem; /* Slightly larger */
+            margin-top: 0.1rem;
+        }
+        .item-date { /* For Period */
+            color: #6b7280; 
+            font-size: 0.9rem; /* Slightly larger */
+            font-style: italic;
+            margin-top: 0.1rem;
+        }
+
+
+        /* Project Feature Section Styling (Apple-like) */
+        .project-feature-section {
+            min-height: 80vh; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 5vh;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            opacity: 0.3;
+            transform: scale(0.95) translateY(50px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            will-change: opacity, transform;
+            position: relative; 
+            background-size: cover;
+            background-position: center;
+            color: white; 
+            cursor: pointer;
+        }
+
+        .project-feature-section::before { /* Overlay for text contrast */
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 20, 40, 0.65); 
+            border-radius: 20px; 
+            z-index: 1; 
+            transition: background-color 0.5s ease-out;
+        }
+        .project-feature-section.active-slide::before {
+            background-color: rgba(0, 10, 20, 0.75); 
+        }
+
+        .project-feature-section > * { /* Ensure content is above overlay */
+            position: relative;
+            z-index: 2;
+        }
+
+        .project-feature-section.active-slide {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+        }
+
+        /* Text styling for Project sections */
+        .project-title {
+            font-size: 2.8rem; 
+            font-weight: 800;
+            color: #FFFFFF; 
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5); 
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.6s 0.3s ease-out, opacity 0.6s 0.3s ease-out;
+        }
+        .project-priority {
+            font-size: 1.1rem; 
+            color: #a7d8ff; 
+            margin-bottom: 1.5rem;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.6s 0.4s ease-out, opacity 0.6s 0.4s ease-out;
+        }
+        .project-summary-text {
+            font-size: 1.2rem; 
+            color: #e0e8f0; 
+            max-width: 700px;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.6s 0.5s ease-out, opacity 0.6s 0.5s ease-out;
+        }
+        .project-rating-display {
+            margin-top: 1rem;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.6s 0.6s ease-out, opacity 0.6s 0.6s ease-out;
+        }
+        .project-feature-section.active-slide .project-title,
+        .project-feature-section.active-slide .project-priority,
+        .project-feature-section.active-slide .project-summary-text,
+        .project-feature-section.active-slide .project-rating-display {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .details-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .details-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 32px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .details-modal.active .modal-content {
+            transform: scale(1);
+        }
+        .skill-tag, .impact-tag, .challenge-tag, .vb-tag {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 3px;
+            display: inline-block;
+            font-weight: 500;
+        }
+        .skill-tag { background-color: #e0f2fe; color: #0c4a6e; }
+        .impact-tag { background-color: #dcfce7; color: #166534; }
+        .challenge-tag { background-color: #fee2e2; color: #991b1b; }
+        .vb-tag { background-color: #ffedd5; color: #9a3412; }
+
+        .modal-content::-webkit-scrollbar { width: 8px; }
+        .modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .modal-content::-webkit-scrollbar-thumb { background: #005A9E; border-radius: 10px; }
+        .modal-content::-webkit-scrollbar-thumb:hover { background: #004375; }
+
+        .section-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #005A9E;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #005A9E;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            will-change: transform, opacity;
+        }
+        .section-title.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .rating-star {
+            color: #facc15; 
+            font-size: 1.5rem; 
+        }
+        .profile-header {
+             padding-top: 2rem; padding-bottom: 2rem;
+        }
+        .modal-section-title { /* For titles within the modal */
+            font-weight: 600;
+            color: #005A9E;
+            font-size: 1.1rem;
+            margin-top: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <header class="text-center mb-12 static-card profile-header">
+            <img src="https://placehold.co/120x120/005A9E/FFFFFF?text=MZ" alt="MZ Initials Placeholder" class="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-white shadow-xl">
+            <h1 class="text-5xl font-extrabold text-[#003366] px-6">Muhammad Zulfadli Bin Abd Wahab</h1>
+            <p class="text-2xl text-gray-700 px-6 mt-2">Senior Manager, Molding & Tooling Engineering - Alcon</p>
+            <p class="text-sm text-gray-500 px-6">(Jan 2025 - Present)</p>
+            <p class="text-sm text-gray-600 px-6">Email: <a href="mailto:zulfadliwahab@gmail.com">zulfadliwahab@gmail.com</a></p>
+            <p class="text-lg text-gray-600 mt-2 pb-6 px-6"><span class="font-semibold text-[#005A9E]">Experience Engineering Manager in Control Engineering, Project Management and Equipment Maintenance & Sustaining</span></p>
+        </header>
+
+        <section class="mb-16 static-card">
+            <div class="card-header">
+                <h2 class="text-3xl font-semibold">Professional Summary</h2>
+            </div>
+            <div class="card-content">
+                <p class="text-gray-700 leading-relaxed text-lg space-y-6">
+                  <p class="indent-10">
+                As a senior engineering leader with 19 years of experience, I specialize in driving operational excellence and technological innovation within high-tech manufacturing environments, including the medical device and data storage industries. Currently pursuing an MBA to complement my technical background, I am passionate about bridging the gap between complex engineering solutions and strategic business objectives.
+            </p>
+            <p class="indent-10">
+                Throughout my career, I've progressed from a hands-on engineer to leading and developing large, multidisciplinary teams of up to 38 members, including managers, engineers, and technicians. My leadership philosophy is centered on building organizational capability and fostering a culture of continuous improvement to meet both current and future manufacturing needs.
+            </p>
+            <p class="indent-10">
+                My core technical expertise lies in the end-to-end lifecycle of factory automation. This includes designing and commissioning fully automated assembly and inspection lines, as well as establishing robust sustaining and maintenance strategies to maximize equipment uptime and reliability. I have a proven track record in leading projects involving PLC & HMI programming, SCADA/MES integration, custom vision systems, and the implementation of Factory Control Systems (FCS) to ensure 100% part traceability and WIP control.
+            </p>
+            <p class="indent-10">
+                My current MBA studies are sharpening my skills in managing large-scale investment projects, financial oversight, and aligning departmental strategy with global business goals. I am always keen to connect with professionals to discuss challenges and opportunities in manufacturing technology, operational strategy, and leadership.
+            </p>
+                </p>
+            </div>
+        </section>
+
+        <section class="mb-16 static-card">
+            <div class="card-header">
+                <h2 class="text-3xl font-semibold">Work Experience</h2>
+            </div>
+            <div id="work-experience-content" class="card-content text-lg">
+                </div>
+        </section>
+
+        <section class="mb-16 static-card">
+            <div class="card-header">
+                <h2 class="text-3xl font-semibold">Education Background</h2>
+            </div>
+            <div id="education-content" class="card-content text-lg">
+                </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="section-title">Key Projects & Achievements</h2>
+            <div id="project-features-container">
+                </div>
+        </section>
+
+        <section class="mb-16 static-card">
+            <div class="card-header">
+                <h2 class="text-3xl font-semibold">Key Initiative: Empowering E3 Engineers (as Control Eng. Manager)</h2>
+            </div>
+            <div id="org-transformation-content" class="card-content text-lg">
+                </div>
+        </section>
+        
+        <section class="static-card mb-16">
+            <div class="card-header">
+                <h2 class="text-3xl font-semibold">Key Skills & Competencies</h2>
+            </div>
+            <div class="card-content">
+                <div id="skills-summary" class="flex flex-wrap gap-3">
+                    </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="details-modal" class="details-modal"> <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="modal-title" class="text-3xl font-bold text-[#005A9E]">Details</h3>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-800 text-3xl font-light">&times;</button>
+            </div>
+            <div id="modal-body" class="space-y-5 text-gray-700 text-base leading-relaxed">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // Comprehensive projectsData from Performance Review and CV
+        const projectsData = [
+            // --- Projects from 2024 Performance Review (Alcon) ---
+            {
+                id: "proj_pr_cost_reduction",
+                title: "Overhead Cost Reduction (2023-2024)",
+                priority: "#1 Win with Customers (Alcon Initiative)",
+                rating: 5,
+                shortSummary: "Achieved 49.05% (MYR 518,613) savings in service contracts & software licenses via strategic negotiations and reviews.",
+                imageTheme: "Financial+Growth+Abstract",
+                details: {
+                    objective: "Achieve a reduction of 10% or more in overhead costs for service contracts and software licenses.",
+                    achievements: ["Total SLA 2024 Budget: RM1,057,000 vs Actual: RM538,386.67 (Saving 49.05%).", "Reduced TechConnect Support cost by 48%.", "Reduced Wonderware Software support cost by 93.5% by negotiating a custom, usage-based model.", "Eliminated non-essential contracts (AVI-Tech SLA, ACP Support)."],
+                    skills: ["Budget Review & Analysis", "Contract Negotiation", "Cost Saving Strategies", "Stakeholder Alignment", "Vendor Management"],
+                    businessImpact: "Significant cost savings allowed reallocation of funds to high-priority projects, enhancing overall operational efficiency.",
+                    challenges: ["Navigating complex contract terms.", "Coordinating internal alignment to prevent disruptions."],
+                    vb: ["Performance: Focused on cost saving.", "Courage: Explored alternative providers and assessed actual SLA needs."]
+                }
+            },
+            {
+                id: "proj_pr_vision_downtime",
+                title: "Vision Systems Downtime Reduction (PriPack, 2023-2024)",
+                priority: "#2 Deliver Innovation (Alcon Initiative)",
+                rating: 5,
+                shortSummary: "Exceeded downtime reduction targets for PriPack S5 & PLMI vision systems, boosting production efficiency.",
+                imageTheme: "Manufacturing+Robotics+AI",
+                details: {
+                    objective: "Reduce downtime for Vision Systems PriPack: S5 < 18827 mins (-10%); PP PLMI < 8583 mins (-10%).",
+                    achievements: ["Actual Downtime: S5 at 13,270 mins, PLMI at 4,384 mins (well below targets).", "Oversaw troubleshooting efforts, trained team members on effective diagnosis methods.", "Ensured system reliability despite outdated system components."],
+                    skills: ["Troubleshooting", "Team Training & Development", "System Diagnosis", "Resource Allocation", "Proactive Maintenance"],
+                    businessImpact: "Improved system uptime directly contributing to higher production efficiency (OEE%) and reduced operational costs.",
+                    challenges: ["Addressing issues due to outdated systems requiring targeted problem-solving.", "Careful system monitoring to maintain performance."],
+                    vb: ["Performance: Ensured vision systems performed well to meet output demands despite outdated infrastructure.", "Innovation: Revised license implementation and support hours."]
+                }
+            },
+            {
+                id: "proj_pr_clmi_upgrade",
+                title: "CLMI-H Langen 2 Upgrade (2024)",
+                priority: "#3 Continuously Improve Alcon (Alcon Initiative)",
+                rating: 4,
+                shortSummary: "Led coordination for critical system upgrade (color camera for AONDA products), with initial documentation approved well ahead of schedule.",
+                imageTheme: "Automated+Packaging+Line",
+                details: {
+                    objective: "Upgrade CLMI-H Langen 2. Exceed target: 20% ahead of project milestone.",
+                    achievements: ["SCRB presented, all initial documents approved, IOPQ protocol in final draft well ahead of initial timeline. YE est: complete by WW47."],
+                    skills: ["Project Coordination", "Technical Expertise", "System Integration Design", "Stakeholder Alignment", "Team Coaching", "Risk Assessment"],
+                    businessImpact: "Aims to reduce carton scrap for AONDA products and improve yield from >85% to >95% by implementing color camera technology.",
+                    challenges: ["Managing coordination across divisions for complex system integration.", "Cross-functional stakeholder alignment.", "Addressing limitations in inspecting orange color cartons."],
+                    vb: ["Innovation: Upgrading to color camera to accommodate AONDA cartons and prevent future similar issues."]
+                }
+            },
+            {
+                id: "proj_pr_mes_downtime",
+                title: "MES Systems Downtime Reduction (2023-2024)",
+                priority: "#3 Continuously Improve Alcon (Alcon Initiative)",
+                rating: 4,
+                shortSummary: "Met downtime reduction targets for critical MES systems (ATS, FND, PLASMA, EXTRACTION), ensuring operational stability.",
+                imageTheme: "Control+Room+Interface",
+                details: {
+                    objective: "Reduce downtime for MES Systems (FND+ATS+PLASMA+Extraction). Targets: ATS <900min, FND <300min, PLASMA <300min, EXTRACTION <300min per year.",
+                    achievements: ["YTD performance met targets: ATS: 708/900 mins, FND: 162/300 mins, PLASMA: 90/300 mins, EXTRACTION: 60/300 mins."],
+                    skills: ["System Checks & Troubleshooting", "Strategic Direction", "Proactive Maintenance", "Cross-Divisional Coordination", "Resource Planning"],
+                    businessImpact: "Contributes to Pripack OEE% by ensuring MES system stability and availability.",
+                    challenges: ["Coordination of multiple subsystems, each with unique challenges and dependencies.", "Effective resource planning and troubleshooting across systems."],
+                    vb: ["Performance: Ensured MES systems performed well to meet output demands despite system complexities."]
+                }
+            },
+            {
+                id: "proj_pr_cc_vision_upgrade",
+                title: "CC Vision Upgrade (CC2) (2024)",
+                priority: "#5 Inspire Our People (Alcon Initiative)",
+                rating: 4,
+                shortSummary: "Achieved USD30K project savings for CC Vision Upgrade and mentored E1 engineer in project management.",
+                imageTheme: "Advanced+Vision+Inspection",
+                details: {
+                    objective: "Dept Project - CC Vision Upgrade (CC2). Go-Live: 15 Dec 2024. Exceed: 20% ahead of milestone.",
+                    achievements: ["CAR Approved, Vendor bidding completed.", "Achieved project saving from initial USD90K to USD60K."],
+                    skills: ["Mentoring & Coaching (E1)", "Project Management", "Vendor Coordination", "Cost Control", "Technical Guidance"],
+                    businessImpact: "BCM for Vision system Cobalt Casting. Improved line continuity by replacing obsolete systems, reducing downtime risk.",
+                    challenges: ["Cross-division/site project involving Finance/MFG.", "Vendor negotiations and managing replacement process to minimize disruptions."],
+                    vb: ["Innovation: Upgraded the system while reducing overall cost.", "People: Coached E1 for project management."]
+                }
+            },
+            {
+                id: "proj_pr_ink_reject_improvement",
+                title: "Ink Veil & Ink Spiking Rejects Improvement (2023-2024)",
+                priority: "#3 Continuously Improve Alcon (Alcon Initiative)",
+                rating: 5,
+                shortSummary: "Reduced ink-related rejects to 1.1% (exceeding 1.26% target) through system enhancements and collaborative optimization.",
+                imageTheme: "Quality+Control+Process",
+                details: {
+                    objective: "Improve Ink Veil & Ink Spiking rejects. Meet: 1.33%, Exceed: 1.26%.",
+                    achievements: ["Achieved 1.1% reject rate (Ink Veil 0.9%, Ink Spike 0.2%).", "Provided technical advice on system enhancement for defect detection accuracy."],
+                    skills: ["Technical Advisory", "System Enhancement", "Defect Detection", "Manufacturing Coordination", "Calibration"],
+                    businessImpact: "Enhanced product quality and reduced waste, contributing to cost savings and improved production efficiency.",
+                    challenges: ["Coordination with manufacturing for real-time iterative improvements.", "High sensitivity calibration to avoid false positives."],
+                    vb: ["Performance: Ensured vision systems met yield demands despite system complexities."]
+                }
+            },
+            {
+                id: "proj_pr_training_program",
+                title: "Structured Training Program Development (2024)",
+                priority: "#5 Inspire Our People (Alcon Initiative)",
+                rating: 4,
+                shortSummary: "Developed and implemented comprehensive training programs for technicians (PLC, Laser, Vision), enhancing in-house capabilities.",
+                imageTheme: "Technical+Training+Workshop",
+                details: {
+                    objective: "Develop a structured training program (materials & assessments) for technicians. Exceed: 20% ahead of project milestone.",
+                    achievements: ["Completed for PLC (Sep 2024) and Laser (Oct 2024). Vision to complete.", "Led skills gap analysis and development of training materials."],
+                    skills: ["Skills Gap Analysis", "Training Material Development", "Curriculum Design", "SME Supervision"],
+                    businessImpact: "Reduced downtime via improved technician skills, enabling faster issue resolution. Minimized vendor dependency, saving costs.",
+                    challenges: ["Understanding specific training needs.", "Designing effective material to bridge skill gaps."],
+                    vb: ["People: Provided technicians with skills for first-level support, empowering them."]
+                }
+            },
+            {
+                id: "proj_pr_fnd_mes_upgrade",
+                title: "FND MES Upgrade (2024)",
+                priority: "#4 Exec Our Growth Plan with Integrity (Alcon Initiative)",
+                rating: 4,
+                shortSummary: "Led FND MES upgrade for BCM, achieving cost savings (used 60% of CAR) and enhancing Industry 4.0 readiness.",
+                imageTheme: "MES+System+Architecture",
+                details: {
+                    objective: "FND MES Upgrade. Target: CRPR Closure 31 Dec 2024. YE Target: CRPR Closure 30 Nov 2024.",
+                    achievements: ["Development completed, Initial & Validation documents largely complete. Execution scheduled for 15 Nov 2024."],
+                    skills: ["Team Guidance", "Obsolete Component Management", "BCM Planning", "System Migration", "Validation"],
+                    businessImpact: "Minimizing BCM risk by avoiding obsolete software/parts. Increased site readiness for Industry 4.0.",
+                    challenges: ["Document complexity (migrating to KNEAT).", "Coding complexity (Wonderware MES version conversion).", "Stakeholder alignment for machine availability."],
+                    vb: ["Collaboration: Input from different stakeholders.", "People: Coached team on system design, validation, documentation, planning, budgetary control."]
+                }
+            },
+            {
+                id: "proj_pr_plasma_os_upgrade",
+                title: "Plasma HMI/SCADA OS Upgrade (2023)",
+                priority: "#4 Exec Our Growth Plan with Integrity (Alcon Initiative)",
+                rating: 4,
+                shortSummary: "Successfully upgraded Plasma HMI/SCADA OS with NO COST, enhancing BCM and Industry 4.0 readiness.",
+                imageTheme: "SCADA+System+Upgrade",
+                details: {
+                    objective: "Plasma HMI/SCADA OS Upgrade. Target: All 6 Lines CRPR Closure 31 Dec 2024. YE Target: CRPR Closure 04 Nov 2024.",
+                    achievements: ["Development, Initial & Validation documents completed. Execution scheduled for 20 Oct 2024."],
+                    skills: ["Team Guidance", "Obsolete Component Management", "BCM Planning", "System Migration", "Validation", "Cost Management"],
+                    businessImpact: "Minimizing BCM risk. Incurred NO COST for the upgrade. Increased site readiness for Industry 4.0.",
+                    challenges: ["Project timeline and stakeholder alignment for machine availability."],
+                    vb: ["Collaboration & People: Focused on coaching and cross-functional alignment."]
+                }
+            },
+            {
+                id: "proj_pr_adhoc_leadership",
+                title: "Adhoc Projects Leadership (2023-2024)",
+                priority: "#6 Adhoc (Alcon Initiative)",
+                rating: 4,
+                shortSummary: "Successfully managed multiple critical adhoc projects (new product lines, system updates, process improvements) meeting tight deadlines.",
+                imageTheme: "Project+Management+Board",
+                details: {
+                    objective: "Support various business-critical adhoc projects ensuring market readiness and operational continuity.",
+                    achievements: ["Completed: Multifocal/Astigmatism Private Label, AONDA 3pk China Update, Single pack ramp up, Cobalt (MDD) 2pk qualification, FND MES Terminal Issue Qualification, etc.", "MDR2.0/MUDI: System Initial assessment/PO completed."],
+                    skills: ["System Design", "Team Coordination (Vision, PLC, MES, PM)", "Strategic Technical Guidance", "Budget Management", "Resource Prioritization"],
+                    businessImpact: "Supported business expansion into new product lines by ensuring effective system upgrades and modifications.",
+                    challenges: ["Meeting tight deadlines with limited team resources.", "Efficient prioritization and coordination among cross-functional teams."],
+                    vb: ["Performance: Managed to upgrade systems and meet project requirements despite outdated systems.", "Collaboration: Worked with various departments and project owners."]
+                }
+            },
+
+            // --- Projects from CV (Alcon, Seagate, Foxconn, WD Media, JCY) ---
+            {
+                id: "proj_cv_ats_smartvision_2024",
+                title: "ATS SmartVision System Upgrade (Jan 2024)",
+                priority: "Primary Packaging Enhancement (Alcon)",
+                rating: null,
+                shortSummary: "Upgraded and qualified ATS SmartVision system, enhancing lens criteria inspection for Primary Packaging.",
+                imageTheme: "Smart+Factory+Vision",
+                details: {
+                    objective: "Enhance lens criteria inspection capabilities for Primary Packaging through ATS SmartVision system upgrade.",
+                    achievements: ["Successfully upgraded and qualified the ATS SmartVision system."],
+                    skills: ["Vision System Upgrade", "Qualification", "Primary Packaging Processes"],
+                    businessImpact: "Improved inspection accuracy and quality assurance in primary packaging.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_aohg_toric_2023",
+                title: "AOHG Toric FTPR Vision/Servo Lead (Jun 2023)",
+                priority: "New Product Introduction (Alcon)",
+                rating: null,
+                shortSummary: "Led vision and servo bias improvement implementation for AOHG Toric -0.75 FTPR.",
+                imageTheme: "Precision+Engineering+Lens",
+                details: {
+                    objective: "Lead the implementation of vision and servo bias improvements for AOHG Toric -0.75 First Time Pass Rate (FTPR).",
+                    achievements: ["Successfully implemented vision and servo bias improvements."],
+                    skills: ["Vision Systems", "Servo Systems", "Implementation Lead", "Process Improvement"],
+                    businessImpact: "Enhanced manufacturing precision and yield for a specific toric lens product.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_transfer_line_vision_2022",
+                title: "Vision System for ATS Transfer Line (Sep 2022)",
+                priority: "Production Line Transfer (Alcon)",
+                rating: null,
+                shortSummary: "Qualified vision system for the ATS Primary Packaging transfer line from Batam to Johor.",
+                imageTheme: "Factory+Relocation+Logistics",
+                details: {
+                    objective: "Qualify the vision system for the ATS Primary Packaging line being transferred from Batam to Johor.",
+                    achievements: ["Successfully qualified the vision system post-transfer."],
+                    skills: ["Vision System Qualification", "Production Line Transfer", "Validation"],
+                    businessImpact: "Ensured quality control continuity for the transferred production line.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_marcheshini_vision_2022",
+                title: "Marcheshini Packaging Line Vision (2-Pack) (July 2022)",
+                priority: "Packaging Line Expansion (Alcon)",
+                rating: null,
+                shortSummary: "Qualified Marcheshini Packaging line vision system to include 2-pack lens packaging.",
+                imageTheme: "Pharmaceutical+Packaging+Machinery",
+                details: {
+                    objective: "Expand Marcheshini Packaging line vision system capabilities to handle 2-pack lens packaging.",
+                    achievements: ["Successfully qualified the vision system for the new packaging format."],
+                    skills: ["Vision System Qualification", "Packaging Line Modification", "Validation"],
+                    businessImpact: "Enabled new packaging options, potentially increasing market reach or product offerings.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_jst_molding_vision_2021",
+                title: "JST Molding Machine Vision Auto Axis Offset (Aug 2020-Jan 2021)",
+                priority: "Molding Process Automation (Alcon)",
+                rating: null,
+                shortSummary: "Upgraded JST 2-4-1 Molding Machine vision system with an auto axis offset system using barcodes to eliminate human error for Toric products.",
+                imageTheme: "Automated+Molding+Process",
+                details: {
+                    objective: "Enhance JST 2-4-1 Molding Machine vision system to automatically determine lens axis offset for Toric products using barcodes, eliminating manual data entry errors.",
+                    achievements: ["Implemented an auto axis offset system using barcode scanning.", "Eliminated human error in keying-in data for Toric product lens axis offset."],
+                    skills: ["Vision System Upgrade", "Automation", "Barcode Systems", "Error Proofing", "Molding Processes"],
+                    businessImpact: "Improved accuracy and efficiency in Toric lens molding, reducing potential for errors and scrap.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_pkg_db_upgrade_2020",
+                title: "Packaging Vision & DB Upgrade (Future Products) (Sep 2019-Aug 2020)",
+                priority: "Future Product Readiness (Alcon)",
+                rating: null,
+                shortSummary: "Upgraded Primary & Secondary Packaging vision systems and databases to support future product implementations and new Cobalt Vision system products.",
+                imageTheme: "Database+System+Architecture",
+                details: {
+                    objective: "Prepare packaging vision systems and databases for upcoming new product introductions.",
+                    achievements: ["Upgraded Primary Packaging vision system.", "Upgraded Secondary Packaging vision system and database.", "Enhanced Cobalt Vision system to accommodate new products."],
+                    skills: ["Vision System Upgrade", "Database Management", "New Product Implementation", "System Integration"],
+                    businessImpact: "Ensured manufacturing readiness for future product pipeline, facilitating smoother launches.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_langen_eumdr_2019",
+                title: "Langen Secondary Packaging (CLMI) EUMDR Upgrade (Oct 2019)",
+                priority: "Regulatory Compliance (Alcon)",
+                rating: null,
+                shortSummary: "Upgraded Langen Secondary Packaging (CLMI) vision system and performed validation to meet EU MDR requirements.",
+                imageTheme: "Regulatory+Compliance+Documentation",
+                details: {
+                    objective: "Ensure Langen Secondary Packaging (CLMI) meets EU Medical Device Regulation (EUMDR) requirements through vision system upgrades and validation.",
+                    achievements: ["Successfully upgraded the vision system.", "Completed validation activities to meet URS and FDS for EUMDR compliance."],
+                    skills: ["Vision System Upgrade", "Validation (URS, FDS)", "Regulatory Compliance (EUMDR)"],
+                    businessImpact: "Ensured continued market access in the EU by meeting new regulatory standards.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_plmi_eumdr_2019",
+                title: "ATS Primary Packaging Vision (PLMI) EUMDR Upgrade (June 2019)",
+                priority: "Regulatory Compliance (Alcon)",
+                rating: null,
+                shortSummary: "Upgraded ATS Primary Packaging Vision System (PLMI) and performed validation to meet EU MDR requirements.",
+                imageTheme: "Medical+Device+Regulation",
+                details: {
+                    objective: "Ensure ATS Primary Packaging Vision System (PLMI) meets EU Medical Device Regulation (EUMDR) requirements.",
+                    achievements: ["Upgraded the vision system.", "Completed validation to meet URS and FDS for EUMDR compliance."],
+                    skills: ["Vision System Upgrade", "Validation (URS, FDS)", "Regulatory Compliance (EUMDR)"],
+                    businessImpact: "Maintained EU market access by adhering to updated regulatory standards.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_fcs_alum_dummy_2017",
+                title: "FCS Dummy Control Deployment - ALUM Area (June 2017)",
+                priority: "Manufacturing Control (Seagate)",
+                rating: null,
+                shortSummary: "Deployed FCS dummy control at ALUM area, providing new equipment for POR to Dummy conversion tracking and establishing FCS flow for data traceability & WIP count.",
+                imageTheme: "Factory+Control+System+Interface",
+                details: {
+                    objective: "Implement FCS dummy control in the ALUM area to improve tracking of POR to Dummy conversions, data traceability, and WIP counting.",
+                    achievements: ["Deployed new equipment for dummy transfer tracking.", "Established FCS flow for enhanced data traceability and WIP control."],
+                    skills: ["FCS Implementation", "Equipment Deployment", "Data Traceability", "WIP Control"],
+                    businessImpact: "Improved material tracking and inventory accuracy in the ALUM area.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_fcs_new_form_factor_2016",
+                title: "FCS Equipment Readiness for New Form Factor (Aug 2016)",
+                priority: "New Product Introduction (Seagate)",
+                rating: null,
+                shortSummary: "Led equipment and software upgrades for new form factor data traceability and DMR system readiness.",
+                imageTheme: "Data+Storage+Manufacturing",
+                details: {
+                    objective: "Establish Factory Control System (FCS) readiness for a new product form factor, including equipment and software upgrades, data traceability, and DMR system readiness.",
+                    achievements: ["Successfully coordinated equipment upgrades and software modifications.", "Ensured data traceability readiness for the new form factor.", "Prepared and validated the DMR (Defective Material Report) system for the changes."],
+                    skills: ["Project Lead", "FCS Implementation", "Equipment Upgrade", "Software Upgrade", "Data Traceability", "Cross-Functional Coordination"],
+                    businessImpact: "Enabled seamless introduction of a new product form factor by ensuring all control systems and traceability mechanisms were prepared.",
+                    challenges: ["Coordinating multiple hardware and software changes across different systems.", "Ensuring data integrity during transition."],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_plating_binary_sys_2017",
+                title: "Plating Spindle Binary System Implementation (Apr 2017)",
+                priority: "Process Modernization (Seagate)",
+                rating: null,
+                shortSummary: "Implemented a new Plating Spindle Binary System to replace an older RFID system, involving data architecture design, monitoring, and software modification.",
+                imageTheme: "Industrial+Plating+Process",
+                details: {
+                    objective: "Replace the existing RFID system with a new Plating Spindle Binary System to improve efficiency and reliability.",
+                    achievements: ["Designed data transferring architecture.", "Monitored and validated data.", "Modified machine software for the new system."],
+                    skills: ["System Implementation", "Data Architecture", "Software Modification", "Validation"],
+                    businessImpact: "Enhanced the plating process with a more modern and potentially more robust tracking system.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_aris_sorting_2015",
+                title: "ARIS (A-Rank Intelligence Sorting) Equipment Establishment (June 2015)",
+                priority: "Quality Improvement (Seagate)",
+                rating: null,
+                shortSummary: "Established new ARIS equipment at AOI area to salvage innocent disks, involved in design, commissioning (FAT & SAT), and troubleshooting support.",
+                imageTheme: "Automated+Sorting+Machine",
+                details: {
+                    objective: "Implement new ARIS (A-Rank Intelligence Sorting) equipment to improve disk salvage rates at the AOI area.",
+                    achievements: ["Involved in design stage.", "Commissioned equipment (FAT & SAT).", "Provided troubleshooting support."],
+                    skills: ["Equipment Design Input", "Commissioning (FAT, SAT)", "Troubleshooting"],
+                    businessImpact: "Increased recovery of usable disks, reducing waste and improving overall yield.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_fcs_stage2_2015",
+                title: "FCS Stage 2 System Implementation (May 2015)",
+                priority: "Manufacturing Control Expansion (Seagate)",
+                rating: null,
+                shortSummary: "Implemented FCS Stage 2 system at ALUM, Plating & Polish areas, involving WIP count, Part Traceability, DMR system, and data machine integration.",
+                imageTheme: "Integrated+Factory+Systems",
+                details: {
+                    objective: "Expand FCS capabilities to Stage 2 in ALUM, Plating & Polish areas, enhancing WIP count, traceability, and DMR systems.",
+                    achievements: ["Established WIP count system.", "Improved part traceability.", "Implemented DMR system.", "Integrated data machines with IT database.", "Introduced new equipment (IWTS, GWTS, PWTS, PGTS, AUTOSORT & SCRAP STATION)."],
+                    skills: ["FCS Implementation", "WIP Management", "Part Traceability", "DMR Systems", "System Integration", "New Equipment Introduction"],
+                    businessImpact: "Provided more comprehensive manufacturing control and data visibility across key production areas.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_hp_nesta_line_2013",
+                title: "HP Auto Nesta 10 Line Qualification (Aug 2013)",
+                priority: "New Production Line Setup (Foxconn)",
+                rating: null,
+                shortSummary: "Involved in installation, commissioning, buyoff, and process qualification of a fully automated HP Auto Nesta 10 Line for printer ink cartridge assembly.",
+                imageTheme: "Fully+Automated+Assembly+Line",
+                details: {
+                    objective: "Successfully install, commission, and qualify the HP Auto Nesta 10 Line, a fully automated line integrating 13 sub-modules for printer ink cartridge assembly.",
+                    achievements: ["Participated in installation, commissioning, and buyoff.", "Performed process qualification.", "Line controlled by HP HMI SCADA System linked to Singapore server."],
+                    skills: ["Equipment Installation", "Commissioning", "Process Qualification", "Automated Systems (AB PLC, Epson/Adept Robot, Conveyors, Laser Welding, PnP)", "SCADA"],
+                    businessImpact: "Enabled high-volume, automated production of printer ink cartridges.",
+                    challenges: ["Integrating 13 complex sub-modules.", "Ensuring robust performance of a fully automated line."],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_slurry_auto_2010",
+                title: "Slurry Centralized System Automation (May 2010)",
+                priority: "Process Automation & Efficiency (WD Media)",
+                rating: null,
+                shortSummary: "Designed and upgraded a manual slurry system to a fully automated centralized system, enhancing pH checking, monitoring, and process control.",
+                imageTheme: "Chemical+Process+Automation",
+                details: {
+                    objective: "Transform a manual slurry centralized system to a fully automated system to improve process control, monitoring, and efficiency.",
+                    achievements: ["Implemented new features including automated pH checking.", "Integrated ultrasonic level sensors and flow meters for usage monitoring.", "Enabled automated valve and backup pump switching.", "Developed a comprehensive process monitoring control system."],
+                    skills: ["System Design", "Automation Implementation", "Process Control", "Sensor Integration", "PLC Programming (Implied)"],
+                    businessImpact: "Increased yield performance by 12% by reducing errors during chemical makeup and supply, and improved overall process reliability.",
+                    challenges: ["Integrating various new sensors and control mechanisms into an existing system.", "Ensuring reliability of the new automated processes."],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_chem_supply_auto_2009",
+                title: "Chemical Supply Centralization for Polishers (Dec 2009)",
+                priority: "Process Optimization (WD Media)",
+                rating: null,
+                shortSummary: "Upgraded chemical supply from individual tanks to a centralized, fully automated system for polisher machines, reducing human error.",
+                imageTheme: "Industrial+Piping+System",
+                details: {
+                    objective: "Improve chemical supply for polisher machines by transitioning from individual tanks to a centralized, fully automated system.",
+                    achievements: ["Designed piping layout.", "Implemented pumping system and alert system.", "Fully automated makeup, transferring, and chemical supply processes."],
+                    skills: ["System Design", "Automation", "Piping Layout", "Process Engineering"],
+                    businessImpact: "Reduced human error in chemical handling, leading to more consistent processing and potentially improved yield/quality.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_coating_line_2007",
+                title: "Cover Coating Thin Film Spraying Line (Dec 2007)",
+                priority: "New Process Implementation (JCY)",
+                rating: null,
+                shortSummary: "Installed, set up, and commissioned a cover coating thin film spraying line, including PLC programming and spray booth design.",
+                imageTheme: "Industrial+Spraying+Booth",
+                details: {
+                    objective: "Establish a new cover coating thin film spraying line.",
+                    achievements: ["Designed wiring and PLC program for the automatic spraying line.", "Designed the spraying booth.", "Line included Nordson Bell Gun Spraying, pneumatic system, servo-controlled conveyor, and PLC-controlled oven."],
+                    skills: ["Equipment Installation", "Commissioning", "PLC Programming", "System Design (Wiring, Booth)", "Process Control"],
+                    businessImpact: "Enabled in-house thin film coating capabilities for hard disk covers.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            },
+            {
+                id: "proj_cv_gdm_machine_2009",
+                title: "GDM Machine Commissioning (2.5\" Cover) (Aug 2007-Jul 2009)",
+                priority: "Precision Manufacturing Setup (JCY)",
+                rating: null,
+                shortSummary: "Installed, set up, and commissioned new GDM machines for 2.5\" cover precision gasket plotting, including Adept Robot and PLC programming.",
+                imageTheme: "Robotic+Dispensing+System",
+                details: {
+                    objective: "Implement new Gasket Dispensing Machines (GDM) for precise gasket plotting on 2.5\" hard disk covers.",
+                    achievements: ["Designed electrical wiring.", "Installed Adept Robot.", "Programmed PLC for automatic gasket dispensing.", "Machine included Adept Python 3-axis Robot, 2 stations (4 cavities each), 3 main modules (Loading, Dispensing, Unloading), pneumatic system, Fuji Servo Motor, and touch screen control."],
+                    skills: ["Equipment Installation", "Commissioning", "Robotics (Adept Python)", "PLC Programming", "Servo Control", "System Design"],
+                    businessImpact: "Established automated precision gasket plotting capability for smaller form factor hard disk covers.",
+                    challenges: ["N/A (Details from CV)"],
+                    vb: ["N/A (Details from CV)"]
+                }
+            }
+        ];
+        
+        const educationData = [
+            { degree: "Master of Business Administration", university: "Management & Science University (MSU)", period: "2024 - Present (Expected Graduation: 2026)" },
+            { degree: "Bachelor of Engineering - Electrical (Telecommunication)", university: "University of Technology Malaysia, Johor", period: "2001 - 2006" },
+            { degree: "Sijil Pelajaran Malaysia (SPM)", university: "Sekolah Menengah Teknik Kuala Lumpur", period: "1999 - 2000" }
+        ];
+
+        const workExperienceData = [
+            { 
+                role: "Senior Manager, Molding & Tooling Engineering", 
+                company: "Alcon Johor Sdn Bhd", 
+                period: "Jan 2025 - Present", 
+                details: `
+                    <p class="mb-2">Oversaw the Molding & Tooling Engineering Department, responsible for maintaining and optimizing fully automated lens molding and casting lines. Reported directly to the Engineering Director while leading a team of 38 (2 Manager I, 1 Senior Engineer, 1 Engineer, 34 Technicians).</p>
+                    <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li>Managed ATS & Cobalt Platform Team, FND & 241 Platform Team, PM Team, Mold Base Team, Carrier Team, and Process & Quality Team.</li>
+                        <li>Led sustaining engineering, preventive maintenance (PM), mold base & carrier management, and process & quality assurance.</li>
+                        <li>Defined strategic direction for the department, aligning with manufacturing and business needs.</li>
+                        <li>Oversaw midsize investment projects (cost, schedule, quality, functionality).</li>
+                        <li>Ensured compliance with cGMP, HSE policies, and integrated global best practices.</li>
+                        <li>Developed talent and organizational capabilities.</li>
+                        <li>Drove continuous improvement initiatives and automation advancements.</li>
+                    </ul>`
+            },
+            { 
+                role: "Senior Manager, Automation & Control Engineering", 
+                company: "Alcon Johor Sdn Bhd", 
+                period: "Dec 2023 - Jan 2025", 
+                details: `
+                    <p class="mb-2">Led and managed the Automation Control, MES, and SCADA teams. Reported to the Engineering Director, leading a team of 10 (2 Associate Managers, 1 Senior Engineer, 5 Engineers, 2 Technicians).</p>
+                    <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li>Set direction & vision for Control Engineering department, providing strategic and tactical planning.</li>
+                        <li>Responsible for design, execution, and handover of midsize investment projects within technical area.</li>
+                        <li>Ensured technical availability and reliability of production plants.</li>
+                        <li>Managed cost efficiency for new and existent engineering assets (cGMP, HSE compliance).</li>
+                        <li>Managed site investment projects according to asset life cycle and project parameters.</li>
+                        <li>Applied global improvement programs and engineering standards.</li>
+                        <li>Managed third-party service providers and contracts.</li>
+                        <li>Developed talent and fostered an inclusive organizational setup.</li>
+                    </ul>`
+            }, 
+            { 
+                role: "Control Engineering Manager", 
+                company: "Alcon Johor Sdn Bhd", 
+                period: "Sep 2023 - Nov 2024", 
+                details: `<p class="mb-2">Responsibilities similar to Senior Manager, Automation & Control Engineering, focusing on leading the Control Engineering team and strategic project execution.</p>
+                          <p>Continued to drive initiatives for technical availability, cost efficiency, and compliance within the Control Engineering scope.</p>`
+            }, 
+            { 
+                role: "Associate Manager - Control", 
+                company: "Alcon Johor Sdn Bhd", 
+                period: "Apr 2023 - Aug 2023", 
+                details: `<p class="mb-2">Stepped into a managerial role within the Control Engineering department, assisting in leading the team and managing automation projects.</p>
+                          <p>Focused on supporting the team in automation control, MES, and SCADA systems, and contributing to project planning and execution.</p>`
+            },
+            { 
+                role: "Staff Engineer - Control", 
+                company: "Alcon Johor Sdn Bhd", 
+                period: "Jan 2022 - Mar 2023", 
+                details: `
+                    <p class="mb-2">Led technical support on control systems for site's manufacturing, ensuring minimum downtime and driving continuous improvement.</p>
+                    <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li>Planned and directed technical support of automated equipment controls (Molding & Finishing).</li>
+                        <li>Executed change control documentation for system compliance.</li>
+                        <li>Gathered requirements, created technical specifications, designed and developed complex automation projects.</li>
+                        <li>Contributed to software architecture design and application development.</li>
+                        <li>Created/drafted initial documents (URS, FDS, FRA, FMEA, DLPM, SRR) and prepared SCRB documentation.</li>
+                        <li>Designed and built software for automation layer information to MES system (Python, SQL).</li>
+                        <li>Developed and implemented systems support processes and documentation.</li>
+                        <li>Managed third-party development teams.</li>
+                    </ul>`
+            },
+            { 
+                role: "Staff Engineer - Vision", 
+                company: "Alcon Johor Sdn Bhd", 
+                period: "Apr 2019 - Dec 2021", 
+                details: `
+                    <p class="mb-2">Person in-charge for Vision systems (Medical Device - Vision and CSV) for Molding and Finishing departments.</p>
+                    <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li>Provided technical support for Vision Inspection Systems.</li>
+                        <li>Executed change control documentation for system compliance.</li>
+                        <li>Gathered requirements, created technical specifications, designed and developed complex Vision Inspection projects.</li>
+                        <li>Developed in-house designed vision inspection systems.</li>
+                        <li>Sourced/designed customized lighting and optical solutions.</li>
+                        <li>Contributed to system support process and documentation development.</li>
+                        <li>Assisted in long-term Vision System support strategy.</li>
+                        <li>Developed and validated vision related software test plans (URS, FDS, FRA, IOPQ).</li>
+                        <li>Managed third-party development teams.</li>
+                    </ul>`
+            },
+            { 
+                role: "Senior Engineer", 
+                company: "Seagate International (Johor) Sdn Bhd", 
+                period: "Apr 2014 - Mar 2019", 
+                details: `
+                    <p class="mb-2">Responsible for establishing and maintaining Factory Control System (FCS) for manufacturing part traceability and WIP control.</p>
+                    <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li>Led, managed, and maintained FCS; project lead for FCS implementation/enhancements.</li>
+                        <li>Overall project coordinator for FCS projects (design, discussion, execution).</li>
+                        <li>Worked with various departments (manufacturing, process, equipment, IT, IE).</li>
+                        <li>Led process design, equipment design, process flow, and system commissioning (FAT & SAT).</li>
+                        <li>Established system part traceability flow for new processes/equipment.</li>
+                        <li>Monitored part traceability data and triggered corrective actions.</li>
+                        <li>Maintained and troubleshooted API Stations (Windows PC, Machine PLC).</li>
+                        <li>Performed data mining for project performance monitoring.</li>
+                        <li>Modified software (OMRON PLC & HMI, VB.net) during project implementation.</li>
+                    </ul>`
+            },
+            { 
+                role: "Process & Maintenance Engineer", 
+                company: "Foxconn Malaysia Sdn Bhd", 
+                period: "Dec 2012 - Apr 2014", 
+                details: `
+                    <p class="mb-2">Part of Engineering team for Auto Nesta 10 Line. Led and managed a team to ensure optimal condition of fully automated production equipment (20 ppm).</p>
+                    <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li>Developed technical competencies and equipment capabilities to meet operational targets within budget.</li>
+                        <li>Worked closely with customer, providing manufacturing/engineering solutions and progress reports.</li>
+                        <li>Established plans and strategies to meet/surpass manufacturing performance indices (Downtime, MTTR, MTBF).</li>
+                        <li>Managed preventive maintenance and calibration.</li>
+                        <li>Provided guidance and training to the team.</li>
+                        <li>Ensured smooth startup of new equipment with vendors.</li>
+                        <li>Established equipment specifications, troubleshooting, and PM procedures.</li>
+                        <li>Liaised with vendors for low-cost maintenance systems.</li>
+                        <li>Led continuous improvement projects (Six-Sigma, Cpk, FMEA, TPM, Lean).</li>
+                    </ul>`
+            },
+            { 
+                role: "Equipment Engineer", 
+                company: "WD Media Sdn Bhd", 
+                period: "Jul 2009 - Dec 2012", 
+                details: `
+                    <p class="mb-2">Under Polisher Equipment Department. Led equipment team (4 Sr. Technicians, 6 Technicians) to support and maintain automated machines.</p>
+                    <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li>Machines included robotic systems, cassette exchanger, bagger machine, Vision Control System, Slurry supply system.</li>
+                        <li>Provided Preventive Maintenance and Planning.</li>
+                        <li>Reported and analyzed scheduled/unscheduled downtime.</li>
+                        <li>Planned and coordinated equipment installation and qualification.</li>
+                        <li>Utilized performance metrics to monitor and improve equipment performance.</li>
+                        <li>Provided technical expertise and training for maintenance technicians.</li>
+                        <li>Implemented preventive, breakdown, and condition-based maintenance programs.</li>
+                        <li>Evaluated & implemented engineering projects.</li>
+                        <li>Planned annual capital budget and managed capital projects.</li>
+                    </ul>`
+            },
+            { 
+                role: "Senior Engineer", 
+                company: "JCY HDD Technology Sdn Bhd", 
+                period: "Aug 2006 - Jul 2009 (Started as Engineer: Aug 2006 - Jan 2008)", 
+                details: `
+                    <p class="mb-2">As Cover Engineering Leader (from Feb 2008), led a team of 13. Responsible for FIPG Engineering Team.</p>
+                    <h4 class="modal-section-title">Key Responsibilities & Functions (as Sr. Engineer):</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li>Prepared Process Control Plan (PCP), Working Instruction (WI), DFM, and NPI/NPD.</li>
+                        <li>Tested new adhesive and epoxy materials for hard disk usage.</li>
+                        <li>Maintained 20 Gasket Dispensing Machines (GDM) - troubleshooting, programming, PLC (Panasonic, SMC), Adept Python Robot, pneumatic systems, servo motors.</li>
+                        <li>Maintained Mixer, QS Pump.</li>
+                        <li>Liaised with QA, Production, FA, Customer Service, and suppliers.</li>
+                        <li>Assembled new GDM machines and prototype thin film coating spraying line.</li>
+                        <li>Reported to Advance Engineering AGM on FIPG machine upgrades, cycle time reduction, process improvement.</li>
+                    </ul>
+                    <h4 class="modal-section-title">As Engineer (Aug 2006 - Jan 2008):</h4>
+                    <ul class="list-disc list-inside space-y-1 pl-4">
+                        <li>Plotted Formed In Placed Gasket (FIPG) for 3.5" and 2.5" Cover Hard Disk.</li>
+                        <li>Assembled cover with damper.</li>
+                    </ul>`
+            }
+        ];
+
+
+        const orgTransformationData = { 
+            introduction: "As Control Engineering Manager, spearheaded an organizational shift by updating the Control Engineering Org Chart, expanding roles for E3 engineers to foster leadership and cross-functional expertise.",
+            keyGoals: [
+                "Broaden E3 Leadership: Elevate E3s to lead entire sections, enhancing decision-making.",
+                "Develop Cross-Functional Skills: Equip E3s with multi-domain understanding (PLC, Vision, MES).",
+                "Foster Team Engagement: Encourage E3 mentorship of technicians for a cohesive team."
+            ],
+            keyBenefits: [
+                "Enhanced Leadership Pipeline within Control Engineering",
+                "Improved Team Efficiency & Holistic Understanding in automation projects",
+                "Stronger Knowledge Transfer & Professional Development for E1-E3 engineers"
+            ],
+            conclusion: [
+                "E3 engineers were positioned as pivotal technical leads, primed for future management within their domain.",
+                "Enhanced cross-departmental collaboration boosted operational resilience for control systems.",
+                "Structured mentoring cultivated leadership and technical growth across the team."
+            ]
+        };
+        
+        // Updated skills set from CV
+        const allSkills = new Set([
+            "Equipment Engineering", "Process Enhancement", "Maintenance Management", "Factory Control Systems (FCS)", "Continuous Improvement",
+            "Project Management", "System Commissioning", "Automated Assembly Machines", "Six Sigma", "Cpk", "FMEA", "TPM", "Lean Manufacturing",
+            "Mechanical Part Design & Modification", "Fixture & Jig Design", "Machine Retrofit",
+            "CAD (AutoCAD, SolidWorks)", "Statistical Process Control (SPC)", "Work Instructions", "DOE",
+            "PLC Programming (Mitsubishi, Panasonic, Omron, Keyence, Beckhoff, Allen Bradley)",
+            "HMI Development", "SCADA (Wonderware, Iconics)", "MES Implementation",
+            "Servo Motor & Inverter Programming (FUJI, Mitsubishi)", "Robotics (ADEPT)",
+            "Programming Languages (Visual Basic, Python, C#, C)", "Database Management (MSSQL, PostgreSQL, SQLite)",
+            "Data Visualization (Node-Red, Grafana, Tableau)",
+            "Vision Systems (Omron, Keyence, Cognex, Basler)", "Custom Vision System Development", "Optical Solutions",
+            "Technical Leadership", "Team Management", "Budget Management", "Vendor Management", "Stakeholder Alignment",
+            "cGMP", "HSE Regulations", "Medical Device Manufacturing", "Data Storage Manufacturing"
+        ]);
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const projectFeaturesContainer = document.getElementById('project-features-container');
+            const workExperienceContainer = document.getElementById('work-experience-content'); // Target for static card items
+            const modal = document.getElementById('details-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+            const closeModalBtn = document.getElementById('close-modal');
+            const educationContainer = document.getElementById('education-content');
+            const orgContent = document.getElementById('org-transformation-content');
+            const skillsSummaryContainer = document.getElementById('skills-summary');
+
+            // --- Reveal on Scroll for Static Cards & Section Titles ---
+            const staticRevealElements = document.querySelectorAll('.static-card, .section-title');
+            const staticObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        staticObserver.unobserve(entry.target); 
+                    }
+                });
+            }, { threshold: 0.1 });
+            staticRevealElements.forEach(el => staticObserver.observe(el));
+
+            // --- Populate Education Section (Remains as static card content) ---
+            educationData.forEach(edu => {
+                const item = document.createElement('div');
+                item.className = 'education-item';
+                item.innerHTML = `
+                    <p class="item-title text-xl">${edu.degree}</p>
+                    <p class="item-subtitle">${edu.university}</p>
+                    <p class="item-date">${edu.period}</p>
+                `;
+                educationContainer.appendChild(item);
+            });
+
+            // --- Populate Work Experience in Static Card with Clickable Items for Modal ---
+            workExperienceData.forEach(job => {
+                const item = document.createElement('div');
+                item.className = 'work-experience-item';
+                
+                const titleElement = document.createElement('p');
+                titleElement.className = 'item-title text-xl'; // Clickable style applied in CSS
+                titleElement.textContent = job.role;
+                // Attach event listener for modal popup
+                titleElement.addEventListener('click', () => {
+                    modalTitle.textContent = `${job.role} at ${job.company}`; // Set modal title
+                    modalBody.innerHTML = job.details || '<p>Details for this role are summarized in the CV.</p>'; // Set modal body content
+                    modal.classList.add('active'); // Show the modal
+                });
+
+                item.appendChild(titleElement); // Add the clickable title to the item
+
+                // Create and append company subtitle
+                const companyElement = document.createElement('p');
+                companyElement.className = 'item-subtitle';
+                companyElement.textContent = job.company;
+                item.appendChild(companyElement);
+
+                // Create and append period date
+                const periodElement = document.createElement('p');
+                periodElement.className = 'item-date';
+                periodElement.textContent = job.period;
+                item.appendChild(periodElement);
+                
+                workExperienceContainer.appendChild(item); // Add the complete item to the container
+            });
+
+
+            // --- Populate Project Feature Sections (Apple Style) ---
+            projectsData.forEach(project => {
+                const projectSection = document.createElement('div');
+                projectSection.className = 'project-feature-section';
+                projectSection.dataset.projectId = project.id; 
+
+                const imageUrl = `https://placehold.co/1200x800/001f3f/ffffff?text=${encodeURIComponent(project.imageTheme || 'Project Theme')}&font=inter`;
+                projectSection.style.backgroundImage = `url('${imageUrl}')`;
+
+                let ratingHtml = '';
+                if (project.rating) {
+                    for (let i = 0; i < 5; i++) {
+                        ratingHtml += `<span class="rating-star">${i < project.rating ? '★' : '☆'}</span>`;
+                    }
+                } else {
+                    ratingHtml = `<span class="text-sm text-gray-300">(Rating not applicable for this CV entry)</span>`;
+                }
+
+                projectSection.innerHTML = `
+                    <h3 class="project-title">${project.title}</h3>
+                    <p class="project-priority">${project.priority}</p>
+                    <p class="project-summary-text">${project.shortSummary}</p>
+                    <div class="project-rating-display">${ratingHtml}</div>
+                `;
+                
+                projectSection.addEventListener('click', () => {
+                    modalTitle.textContent = project.title; // Set modal title to project title
+                    let detailsHtml = `<p class="text-gray-500 text-base mb-3"><strong>Context/Initiative:</strong> ${project.priority}</p>`;
+                    if (project.details.objective) {
+                        detailsHtml += `<h4 class="modal-section-title">Objective:</h4><p class="mb-3">${project.details.objective}</p>`;
+                    }
+                    
+                    if (project.details.achievements && project.details.achievements.length > 0) {
+                        detailsHtml += `<h4 class="modal-section-title">Key Achievements/Activities:</h4><ul class="list-disc list-inside space-y-1 pl-4 mb-3">`;
+                        project.details.achievements.forEach(ach => detailsHtml += `<li>${ach}</li>`);
+                        detailsHtml += `</ul>`;
+                    }
+
+                    if (project.details.skills && project.details.skills.length > 0) {
+                        detailsHtml += `<h4 class="modal-section-title">Skills Utilized:</h4><div class="flex flex-wrap gap-2 mb-3">`;
+                        project.details.skills.forEach(skill => detailsHtml += `<span class="skill-tag">${skill}</span>`);
+                        detailsHtml += `</div>`;
+                    }
+
+                    if (project.details.businessImpact) {
+                        detailsHtml += `<h4 class="modal-section-title">Business Impact:</h4><p class="mb-3"><span class="impact-tag">${project.details.businessImpact}</span></p>`;
+                    }
+                    
+                    if (project.details.challenges && project.details.challenges !== "N/A (Details from CV)" && project.details.challenges.length > 0) {
+                        detailsHtml += `<h4 class="modal-section-title">Challenges Faced:</h4><div class="flex flex-wrap gap-2 mb-3">`;
+                        if (Array.isArray(project.details.challenges)) {
+                            project.details.challenges.forEach(ch => detailsHtml += `<span class="challenge-tag">${ch}</span>`);
+                        } else {
+                             detailsHtml += `<span class="challenge-tag">${project.details.challenges}</span>`;
+                        }
+                        detailsHtml += `</div>`;
+                    }
+                    
+                    if (project.details.vb && project.details.vb !== "N/A (Details from CV)") {
+                        const vbText = Array.isArray(project.details.vb) ? project.details.vb.join('; ') : project.details.vb;
+                        detailsHtml += `<h4 class="modal-section-title">Values & Behaviors Demonstrated:</h4><p><span class="vb-tag">${vbText}</span></p>`;
+                    }
+                    
+                    modalBody.innerHTML = detailsHtml;
+                    modal.classList.add('active');
+                });
+
+                projectFeaturesContainer.appendChild(projectSection);
+            });
+
+            // --- Intersection Observer for Project Feature Sections ONLY ---
+            const projectFeatureSections = document.querySelectorAll('.project-feature-section');
+            const featureObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active-slide');
+                    } else {
+                        entry.target.classList.remove('active-slide'); 
+                    }
+                });
+            }, { threshold: 0.4 }); 
+
+            projectFeatureSections.forEach(section => featureObserver.observe(section));
+            
+            // Populate Organizational Transformation
+            let orgHtml = `<p class="text-gray-700 mb-4 leading-relaxed">${orgTransformationData.introduction}</p>`;
+            orgHtml += `<h4 class="text-xl font-semibold text-[#004375] mt-5 mb-2">Key Goals Achieved:</h4><ul class="list-disc list-inside text-gray-700 mb-4 space-y-1">`;
+            orgTransformationData.keyGoals.forEach(goal => orgHtml += `<li>${goal}</li>`);
+            orgHtml += `</ul>`;
+            orgHtml += `<h4 class="text-xl font-semibold text-[#004375] mt-5 mb-2">Primary Benefits:</h4><ul class="list-disc list-inside text-gray-700 mb-4 space-y-1">`;
+            orgTransformationData.keyBenefits.forEach(benefit => orgHtml += `<li>${benefit}</li>`);
+            orgHtml += `</ul>`;
+            orgHtml += `<h4 class="text-xl font-semibold text-[#004375] mt-5 mb-2">Summary of Impact:</h4><ul class="list-disc list-inside text-gray-700 space-y-1">`;
+            orgTransformationData.conclusion.forEach(point => orgHtml += `<li>${point}</li>`);
+            orgHtml += `</ul>`;
+            orgContent.innerHTML = orgHtml;
+
+            // Populate Skills Summary
+            const sortedSkills = Array.from(allSkills).sort();
+            sortedSkills.forEach(skill => {
+                const skillTag = document.createElement('span');
+                skillTag.className = 'skill-tag text-base px-3 py-1.5'; 
+                skillTag.textContent = skill;
+                skillsSummaryContainer.appendChild(skillTag);
+            });
+
+            // Modal close functionality
+            closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
+            modal.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+            window.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && modal.classList.contains('active')) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
 
