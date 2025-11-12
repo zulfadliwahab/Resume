@@ -81,6 +81,16 @@
             margin-top: 0.1rem;
         }
 
+        /* Filterable Item Styling */
+        .filterable-item {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            will-change: opacity, transform;
+        }
+        .filterable-item.dimmed {
+            opacity: 0.2;
+            transform: scale(0.98);
+        }
+
 
         /* Project Feature Section Styling (Apple-like) */
         .project-feature-section {
@@ -104,6 +114,14 @@
             color: white; 
             cursor: pointer;
         }
+        .project-feature-section.dimmed { /* Specific dimming for projects */
+            opacity: 0.1 !important; /* Make it more pronounced over the base 0.3 opacity */
+            transform: scale(0.95) translateY(0);
+        }
+        .project-feature-section.active-slide.dimmed {
+            opacity: 0.2 !important;
+        }
+
 
         .project-feature-section::before { /* Overlay for text contrast */
             content: "";
@@ -210,6 +228,8 @@
         .details-modal.active .modal-content {
             transform: scale(1);
         }
+
+        /* Skill Tag Styling */
         .skill-tag, .impact-tag, .challenge-tag, .vb-tag {
             padding: 6px 12px;
             border-radius: 20px;
@@ -218,10 +238,43 @@
             display: inline-block;
             font-weight: 500;
         }
-        .skill-tag { background-color: #e0f2fe; color: #0c4a6e; }
+        .skill-tag { 
+            background-color: #e0f2fe; 
+            color: #0c4a6e; 
+            /* Interactive styles for filtering */
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .skill-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        /* Active filter state for skill tags */
+        .skill-tag.active-filter {
+            background-color: #005A9E !important;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 90, 158, 0.4);
+        }
+
         .impact-tag { background-color: #dcfce7; color: #166534; }
         .challenge-tag { background-color: #fee2e2; color: #991b1b; }
         .vb-tag { background-color: #ffedd5; color: #9a3412; }
+
+        #clear-filter-btn {
+            background-color: #fee2e2;
+            color: #991b1b;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none; /* Hidden by default */
+            margin-left: 1rem;
+        }
+        #clear-filter-btn:hover {
+            background-color: #fca5a5;
+        }
 
         .modal-content::-webkit-scrollbar { width: 8px; }
         .modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
@@ -260,10 +313,75 @@
             margin-bottom: 0.25rem;
         }
 
+        /* Tabbed Content Styling */
+        .tab-nav {
+            display: flex;
+            flex-wrap: wrap; /* Allow tabs to wrap on smaller screens */
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+        .tab-btn {
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6b7280;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px; /* To align with the nav border */
+            transition: color 0.3s ease, border-color 0.3s ease;
+            text-align: center;
+        }
+        .tab-btn:hover {
+            color: #374151;
+        }
+        .tab-btn.active {
+            color: #005A9E;
+            font-weight: 600;
+            border-color: #005A9E;
+        }
+        .tab-pane {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .tab-pane.active {
+            display: block;
+            opacity: 1;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Section Filter Bar Styling */
+        .section-filter-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151; /* gray-700 */
+            background-color: transparent;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .section-filter-btn:hover {
+            background-color: #e5e7eb; /* gray-200 */
+            color: #1f2937; /* gray-800 */
+        }
+        .section-filter-btn.active {
+            background-color: #005A9E;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        /* Ensure hidden sections are gone - REMOVED this rule */
+
     </style>
 </head>
 <body>
     <div class="main-container">
+        <!-- Header Section -->
         <header class="text-center mb-12 static-card profile-header">
             <img src="https://placehold.co/120x120/005A9E/FFFFFF?text=MZ" alt="MZ Initials Placeholder" class="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-white shadow-xl">
             <h1 class="text-5xl font-extrabold text-[#003366] px-6">Muhammad Zulfadli Bin Abd Wahab</h1>
@@ -273,12 +391,24 @@
             <p class="text-lg text-gray-600 mt-2 pb-6 px-6"><span class="font-semibold text-[#005A9E]">Experience Engineering Manager in Control Engineering, Project Management and Equipment Maintenance & Sustaining</span></p>
         </header>
 
-        <section class="mb-16 static-card">
+        <!-- Section Filter Bar -->
+        <div id="section-filter-bar" class="sticky top-4 z-50 my-8 p-2 bg-gray-100/80 backdrop-blur-md rounded-xl shadow-md flex justify-center flex-wrap gap-2">
+            <button class="section-filter-btn active" data-filter-target="all">All Sections</button>
+            <button class="section-filter-btn" data-filter-target="summary-section">Summary</button>
+            <button class="section-filter-btn" data-filter-target="work-section">Work</button>
+            <button class="section-filter-btn" data-filter-target="education-section">Education</button>
+			<button class="section-filter-btn" data-filter-target="projects-section">Projects</button>
+            <button class="section-filter-btn" data-filter-target="initiative-section">Initiative</button>
+            <button class="section-filter-btn" data-filter-target="skills-section">Skills</button>
+        </div>
+
+        <!-- Professional Summary Section -->
+        <section id="summary-section" class="mb-16 static-card main-content-section">
             <div class="card-header">
                 <h2 class="text-3xl font-semibold">Professional Summary</h2>
             </div>
             <div class="card-content">
-                <p class="text-gray-700 leading-relaxed text-lg space-y-6">
+                <div class="text-gray-700 leading-relaxed text-lg space-y-6">
                   <p class="indent-10">
                 As a senior engineering leader with 19 years of experience, I specialize in driving operational excellence and technological innovation within high-tech manufacturing environments, including the medical device and data storage industries. Currently pursuing an MBA to complement my technical background, I am passionate about bridging the gap between complex engineering solutions and strategic business objectives.
             </p>
@@ -291,62 +421,78 @@
             <p class="indent-10">
                 My current MBA studies are sharpening my skills in managing large-scale investment projects, financial oversight, and aligning departmental strategy with global business goals. I am always keen to connect with professionals to discuss challenges and opportunities in manufacturing technology, operational strategy, and leadership.
             </p>
-                </p>
+                </div>
             </div>
         </section>
 
-        <section class="mb-16 static-card">
+        <!-- Work Experience Section -->
+        <section id="work-section" class="mb-16 static-card main-content-section">
             <div class="card-header">
                 <h2 class="text-3xl font-semibold">Work Experience</h2>
             </div>
             <div id="work-experience-content" class="card-content text-lg">
-                </div>
+                <!-- Work experience items will be dynamically injected here -->
+            </div>
         </section>
 
-        <section class="mb-16 static-card">
+        <!-- Education Section -->
+        <section id="education-section" class="mb-16 static-card main-content-section">
             <div class="card-header">
                 <h2 class="text-3xl font-semibold">Education Background</h2>
             </div>
             <div id="education-content" class="card-content text-lg">
-                </div>
+                <!-- Education items will be dynamically injected here -->
+            </div>
         </section>
 
-        <section class="mb-16">
+        <!-- Key Projects Section -->
+        <section id="projects-section" class="mb-16 main-content-section">
             <h2 class="section-title">Key Projects & Achievements</h2>
             <div id="project-features-container">
-                </div>
+                <!-- Project feature sections will be dynamically injected here -->
+            </div>
         </section>
 
-        <section class="mb-16 static-card">
+        <!-- Key Initiative Section (Now Tabbed) -->
+        <section id="initiative-section" class="mb-16 static-card main-content-section">
             <div class="card-header">
                 <h2 class="text-3xl font-semibold">Key Initiative: Empowering E3 Engineers (as Control Eng. Manager)</h2>
             </div>
             <div id="org-transformation-content" class="card-content text-lg">
-                </div>
+                <!-- Tabbed interface will be injected here -->
+            </div>
         </section>
         
-        <section class="static-card mb-16">
-            <div class="card-header">
+        <!-- Key Skills Section (Now Filterable) -->
+        <section id="skills-section" class="static-card mb-16 main-content-section">
+            <div class="card-header flex justify-between items-center">
                 <h2 class="text-3xl font-semibold">Key Skills & Competencies</h2>
+                <button id="clear-filter-btn" title="Clear skill filter">&times; Clear Filter</button>
             </div>
             <div class="card-content">
                 <div id="skills-summary" class="flex flex-wrap gap-3">
-                    </div>
+                    <!-- Skill tags will be dynamically injected here -->
+                </div>
             </div>
         </section>
     </div>
 
-    <div id="details-modal" class="details-modal"> <div class="modal-content">
+    <!-- Modal Structure -->
+    <div id="details-modal" class="details-modal">
+        <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
                 <h3 id="modal-title" class="text-3xl font-bold text-[#005A9E]">Details</h3>
                 <button id="close-modal" class="text-gray-500 hover:text-gray-800 text-3xl font-light">&times;</button>
             </div>
             <div id="modal-body" class="space-y-5 text-gray-700 text-base leading-relaxed">
-                </div>
+                <!-- Modal content will be dynamically injected here -->
+            </div>
         </div>
     </div>
 
     <script>
+        // --- DATA OBJECTS ---
+
         // Comprehensive projectsData from Performance Review and CV
         const projectsData = [
             // --- Projects from 2024 Performance Review (Alcon) ---
@@ -360,7 +506,7 @@
                 details: {
                     objective: "Achieve a reduction of 10% or more in overhead costs for service contracts and software licenses.",
                     achievements: ["Total SLA 2024 Budget: RM1,057,000 vs Actual: RM538,386.67 (Saving 49.05%).", "Reduced TechConnect Support cost by 48%.", "Reduced Wonderware Software support cost by 93.5% by negotiating a custom, usage-based model.", "Eliminated non-essential contracts (AVI-Tech SLA, ACP Support)."],
-                    skills: ["Budget Review & Analysis", "Contract Negotiation", "Cost Saving Strategies", "Stakeholder Alignment", "Vendor Management"],
+                    skills: ["Budget Management", "Contract Negotiation", "Cost Saving Strategies", "Stakeholder Alignment", "Vendor Management"],
                     businessImpact: "Significant cost savings allowed reallocation of funds to high-priority projects, enhancing overall operational efficiency.",
                     challenges: ["Navigating complex contract terms.", "Coordinating internal alignment to prevent disruptions."],
                     vb: ["Performance: Focused on cost saving.", "Courage: Explored alternative providers and assessed actual SLA needs."]
@@ -376,7 +522,7 @@
                 details: {
                     objective: "Reduce downtime for Vision Systems PriPack: S5 < 18827 mins (-10%); PP PLMI < 8583 mins (-10%).",
                     achievements: ["Actual Downtime: S5 at 13,270 mins, PLMI at 4,384 mins (well below targets).", "Oversaw troubleshooting efforts, trained team members on effective diagnosis methods.", "Ensured system reliability despite outdated system components."],
-                    skills: ["Troubleshooting", "Team Training & Development", "System Diagnosis", "Resource Allocation", "Proactive Maintenance"],
+                    skills: ["Troubleshooting", "Team Management", "System Diagnosis", "Resource Allocation", "Proactive Maintenance", "Vision Systems"],
                     businessImpact: "Improved system uptime directly contributing to higher production efficiency (OEE%) and reduced operational costs.",
                     challenges: ["Addressing issues due to outdated systems requiring targeted problem-solving.", "Careful system monitoring to maintain performance."],
                     vb: ["Performance: Ensured vision systems performed well to meet output demands despite outdated infrastructure.", "Innovation: Revised license implementation and support hours."]
@@ -392,7 +538,7 @@
                 details: {
                     objective: "Upgrade CLMI-H Langen 2. Exceed target: 20% ahead of project milestone.",
                     achievements: ["SCRB presented, all initial documents approved, IOPQ protocol in final draft well ahead of initial timeline. YE est: complete by WW47."],
-                    skills: ["Project Coordination", "Technical Expertise", "System Integration Design", "Stakeholder Alignment", "Team Coaching", "Risk Assessment"],
+                    skills: ["Project Coordination", "Technical Expertise", "System Integration", "Stakeholder Alignment", "Team Management", "Risk Assessment", "Vision Systems"],
                     businessImpact: "Aims to reduce carton scrap for AONDA products and improve yield from >85% to >95% by implementing color camera technology.",
                     challenges: ["Managing coordination across divisions for complex system integration.", "Cross-functional stakeholder alignment.", "Addressing limitations in inspecting orange color cartons."],
                     vb: ["Innovation: Upgrading to color camera to accommodate AONDA cartons and prevent future similar issues."]
@@ -408,7 +554,7 @@
                 details: {
                     objective: "Reduce downtime for MES Systems (FND+ATS+PLASMA+Extraction). Targets: ATS <900min, FND <300min, PLASMA <300min, EXTRACTION <300min per year.",
                     achievements: ["YTD performance met targets: ATS: 708/900 mins, FND: 162/300 mins, PLASMA: 90/300 mins, EXTRACTION: 60/300 mins."],
-                    skills: ["System Checks & Troubleshooting", "Strategic Direction", "Proactive Maintenance", "Cross-Divisional Coordination", "Resource Planning"],
+                    skills: ["Troubleshooting", "Strategic Direction", "Proactive Maintenance", "Cross-Functional Coordination", "Resource Allocation", "MES Implementation"],
                     businessImpact: "Contributes to Pripack OEE% by ensuring MES system stability and availability.",
                     challenges: ["Coordination of multiple subsystems, each with unique challenges and dependencies.", "Effective resource planning and troubleshooting across systems."],
                     vb: ["Performance: Ensured MES systems performed well to meet output demands despite system complexities."]
@@ -424,7 +570,7 @@
                 details: {
                     objective: "Dept Project - CC Vision Upgrade (CC2). Go-Live: 15 Dec 2024. Exceed: 20% ahead of milestone.",
                     achievements: ["CAR Approved, Vendor bidding completed.", "Achieved project saving from initial USD90K to USD60K."],
-                    skills: ["Mentoring & Coaching (E1)", "Project Management", "Vendor Coordination", "Cost Control", "Technical Guidance"],
+                    skills: ["Team Management", "Project Management", "Vendor Management", "Cost Management", "Technical Guidance", "Vision Systems"],
                     businessImpact: "BCM for Vision system Cobalt Casting. Improved line continuity by replacing obsolete systems, reducing downtime risk.",
                     challenges: ["Cross-division/site project involving Finance/MFG.", "Vendor negotiations and managing replacement process to minimize disruptions."],
                     vb: ["Innovation: Upgraded the system while reducing overall cost.", "People: Coached E1 for project management."]
@@ -440,7 +586,7 @@
                 details: {
                     objective: "Improve Ink Veil & Ink Spiking rejects. Meet: 1.33%, Exceed: 1.26%.",
                     achievements: ["Achieved 1.1% reject rate (Ink Veil 0.9%, Ink Spike 0.2%).", "Provided technical advice on system enhancement for defect detection accuracy."],
-                    skills: ["Technical Advisory", "System Enhancement", "Defect Detection", "Manufacturing Coordination", "Calibration"],
+                    skills: ["Technical Guidance", "System Enhancement", "Defect Detection", "Cross-Functional Coordination", "Calibration", "Vision Systems"],
                     businessImpact: "Enhanced product quality and reduced waste, contributing to cost savings and improved production efficiency.",
                     challenges: ["Coordination with manufacturing for real-time iterative improvements.", "High sensitivity calibration to avoid false positives."],
                     vb: ["Performance: Ensured vision systems met yield demands despite system complexities."]
@@ -456,7 +602,7 @@
                 details: {
                     objective: "Develop a structured training program (materials & assessments) for technicians. Exceed: 20% ahead of project milestone.",
                     achievements: ["Completed for PLC (Sep 2024) and Laser (Oct 2024). Vision to complete.", "Led skills gap analysis and development of training materials."],
-                    skills: ["Skills Gap Analysis", "Training Material Development", "Curriculum Design", "SME Supervision"],
+                    skills: ["Skills Gap Analysis", "Training Material Development", "Curriculum Design", "Team Management", "PLC Programming", "Vision Systems"],
                     businessImpact: "Reduced downtime via improved technician skills, enabling faster issue resolution. Minimized vendor dependency, saving costs.",
                     challenges: ["Understanding specific training needs.", "Designing effective material to bridge skill gaps."],
                     vb: ["People: Provided technicians with skills for first-level support, empowering them."]
@@ -472,7 +618,7 @@
                 details: {
                     objective: "FND MES Upgrade. Target: CRPR Closure 31 Dec 2024. YE Target: CRPR Closure 30 Nov 2024.",
                     achievements: ["Development completed, Initial & Validation documents largely complete. Execution scheduled for 15 Nov 2024."],
-                    skills: ["Team Guidance", "Obsolete Component Management", "BCM Planning", "System Migration", "Validation"],
+                    skills: ["Team Management", "Obsolete Component Management", "BCM Planning", "System Migration", "Validation", "MES Implementation", "SCADA (Wonderware)"],
                     businessImpact: "Minimizing BCM risk by avoiding obsolete software/parts. Increased site readiness for Industry 4.0.",
                     challenges: ["Document complexity (migrating to KNEAT).", "Coding complexity (Wonderware MES version conversion).", "Stakeholder alignment for machine availability."],
                     vb: ["Collaboration: Input from different stakeholders.", "People: Coached team on system design, validation, documentation, planning, budgetary control."]
@@ -488,7 +634,7 @@
                 details: {
                     objective: "Plasma HMI/SCADA OS Upgrade. Target: All 6 Lines CRPR Closure 31 Dec 2024. YE Target: CRPR Closure 04 Nov 2024.",
                     achievements: ["Development, Initial & Validation documents completed. Execution scheduled for 20 Oct 2024."],
-                    skills: ["Team Guidance", "Obsolete Component Management", "BCM Planning", "System Migration", "Validation", "Cost Management"],
+                    skills: ["Team Management", "Obsolete Component Management", "BCM Planning", "System Migration", "Validation", "Cost Management", "SCADA"],
                     businessImpact: "Minimizing BCM risk. Incurred NO COST for the upgrade. Increased site readiness for Industry 4.0.",
                     challenges: ["Project timeline and stakeholder alignment for machine availability."],
                     vb: ["Collaboration & People: Focused on coaching and cross-functional alignment."]
@@ -504,7 +650,7 @@
                 details: {
                     objective: "Support various business-critical adhoc projects ensuring market readiness and operational continuity.",
                     achievements: ["Completed: Multifocal/Astigmatism Private Label, AONDA 3pk China Update, Single pack ramp up, Cobalt (MDD) 2pk qualification, FND MES Terminal Issue Qualification, etc.", "MDR2.0/MUDI: System Initial assessment/PO completed."],
-                    skills: ["System Design", "Team Coordination (Vision, PLC, MES, PM)", "Strategic Technical Guidance", "Budget Management", "Resource Prioritization"],
+                    skills: ["System Design", "Project Coordination", "Technical Guidance", "Budget Management", "Resource Allocation", "Vision Systems", "PLC Programming", "MES Implementation", "Project Management"],
                     businessImpact: "Supported business expansion into new product lines by ensuring effective system upgrades and modifications.",
                     challenges: ["Meeting tight deadlines with limited team resources.", "Efficient prioritization and coordination among cross-functional teams."],
                     vb: ["Performance: Managed to upgrade systems and meet project requirements despite outdated systems.", "Collaboration: Worked with various departments and project owners."]
@@ -522,10 +668,10 @@
                 details: {
                     objective: "Enhance lens criteria inspection capabilities for Primary Packaging through ATS SmartVision system upgrade.",
                     achievements: ["Successfully upgraded and qualified the ATS SmartVision system."],
-                    skills: ["Vision System Upgrade", "Qualification", "Primary Packaging Processes"],
+                    skills: ["Vision Systems", "Qualification", "Medical Device Manufacturing"],
                     businessImpact: "Improved inspection accuracy and quality assurance in primary packaging.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -538,10 +684,10 @@
                 details: {
                     objective: "Lead the implementation of vision and servo bias improvements for AOHG Toric -0.75 First Time Pass Rate (FTPR).",
                     achievements: ["Successfully implemented vision and servo bias improvements."],
-                    skills: ["Vision Systems", "Servo Systems", "Implementation Lead", "Process Improvement"],
+                    skills: ["Vision Systems", "Servo Motor", "Implementation Lead", "Process Enhancement"],
                     businessImpact: "Enhanced manufacturing precision and yield for a specific toric lens product.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -554,10 +700,10 @@
                 details: {
                     objective: "Qualify the vision system for the ATS Primary Packaging line being transferred from Batam to Johor.",
                     achievements: ["Successfully qualified the vision system post-transfer."],
-                    skills: ["Vision System Qualification", "Production Line Transfer", "Validation"],
+                    skills: ["Vision Systems", "Qualification", "Validation", "Production Line Transfer"],
                     businessImpact: "Ensured quality control continuity for the transferred production line.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -570,10 +716,10 @@
                 details: {
                     objective: "Expand Marcheshini Packaging line vision system capabilities to handle 2-pack lens packaging.",
                     achievements: ["Successfully qualified the vision system for the new packaging format."],
-                    skills: ["Vision System Qualification", "Packaging Line Modification", "Validation"],
+                    skills: ["Vision Systems", "Qualification", "Validation", "Medical Device Manufacturing"],
                     businessImpact: "Enabled new packaging options, potentially increasing market reach or product offerings.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -586,10 +732,10 @@
                 details: {
                     objective: "Enhance JST 2-4-1 Molding Machine vision system to automatically determine lens axis offset for Toric products using barcodes, eliminating manual data entry errors.",
                     achievements: ["Implemented an auto axis offset system using barcode scanning.", "Eliminated human error in keying-in data for Toric product lens axis offset."],
-                    skills: ["Vision System Upgrade", "Automation", "Barcode Systems", "Error Proofing", "Molding Processes"],
+                    skills: ["Vision Systems", "Automation", "Barcode Systems", "Error Proofing", "Process Enhancement", "Medical Device Manufacturing"],
                     businessImpact: "Improved accuracy and efficiency in Toric lens molding, reducing potential for errors and scrap.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -602,10 +748,10 @@
                 details: {
                     objective: "Prepare packaging vision systems and databases for upcoming new product introductions.",
                     achievements: ["Upgraded Primary Packaging vision system.", "Upgraded Secondary Packaging vision system and database.", "Enhanced Cobalt Vision system to accommodate new products."],
-                    skills: ["Vision System Upgrade", "Database Management", "New Product Implementation", "System Integration"],
+                    skills: ["Vision Systems", "Database Management", "NPI/NPD", "System Integration", "Medical Device Manufacturing"],
                     businessImpact: "Ensured manufacturing readiness for future product pipeline, facilitating smoother launches.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -618,10 +764,10 @@
                 details: {
                     objective: "Ensure Langen Secondary Packaging (CLMI) meets EU Medical Device Regulation (EUMDR) requirements through vision system upgrades and validation.",
                     achievements: ["Successfully upgraded the vision system.", "Completed validation activities to meet URS and FDS for EUMDR compliance."],
-                    skills: ["Vision System Upgrade", "Validation (URS, FDS)", "Regulatory Compliance (EUMDR)"],
+                    skills: ["Vision Systems", "Validation", "URS", "FDS", "Regulatory Compliance (EUMDR)", "Medical Device Manufacturing"],
                     businessImpact: "Ensured continued market access in the EU by meeting new regulatory standards.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -634,10 +780,10 @@
                 details: {
                     objective: "Ensure ATS Primary Packaging Vision System (PLMI) meets EU Medical Device Regulation (EUMDR) requirements.",
                     achievements: ["Upgraded the vision system.", "Completed validation to meet URS and FDS for EUMDR compliance."],
-                    skills: ["Vision System Upgrade", "Validation (URS, FDS)", "Regulatory Compliance (EUMDR)"],
+                    skills: ["Vision Systems", "Validation", "URS", "FDS", "Regulatory Compliance (EUMDR)", "Medical Device Manufacturing"],
                     businessImpact: "Maintained EU market access by adhering to updated regulatory standards.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -650,10 +796,10 @@
                 details: {
                     objective: "Implement FCS dummy control in the ALUM area to improve tracking of POR to Dummy conversions, data traceability, and WIP counting.",
                     achievements: ["Deployed new equipment for dummy transfer tracking.", "Established FCS flow for enhanced data traceability and WIP control."],
-                    skills: ["FCS Implementation", "Equipment Deployment", "Data Traceability", "WIP Control"],
+                    skills: ["Factory Control Systems (FCS)", "Equipment Deployment", "Data Traceability", "WIP Control", "Data Storage Manufacturing"],
                     businessImpact: "Improved material tracking and inventory accuracy in the ALUM area.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -666,10 +812,10 @@
                 details: {
                     objective: "Establish Factory Control System (FCS) readiness for a new product form factor, including equipment and software upgrades, data traceability, and DMR system readiness.",
                     achievements: ["Successfully coordinated equipment upgrades and software modifications.", "Ensured data traceability readiness for the new form factor.", "Prepared and validated the DMR (Defective Material Report) system for the changes."],
-                    skills: ["Project Lead", "FCS Implementation", "Equipment Upgrade", "Software Upgrade", "Data Traceability", "Cross-Functional Coordination"],
+                    skills: ["Project Lead", "Factory Control Systems (FCS)", "Equipment Upgrade", "Software Upgrade", "Data Traceability", "Cross-Functional Coordination", "Data Storage Manufacturing"],
                     businessImpact: "Enabled seamless introduction of a new product form factor by ensuring all control systems and traceability mechanisms were prepared.",
                     challenges: ["Coordinating multiple hardware and software changes across different systems.", "Ensuring data integrity during transition."],
-                    vb: ["N/A (Details from CV)"]
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -682,10 +828,10 @@
                 details: {
                     objective: "Replace the existing RFID system with a new Plating Spindle Binary System to improve efficiency and reliability.",
                     achievements: ["Designed data transferring architecture.", "Monitored and validated data.", "Modified machine software for the new system."],
-                    skills: ["System Implementation", "Data Architecture", "Software Modification", "Validation"],
+                    skills: ["System Implementation", "Data Architecture", "Software Modification", "Validation", "Data Storage Manufacturing"],
                     businessImpact: "Enhanced the plating process with a more modern and potentially more robust tracking system.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -698,10 +844,10 @@
                 details: {
                     objective: "Implement new ARIS (A-Rank Intelligence Sorting) equipment to improve disk salvage rates at the AOI area.",
                     achievements: ["Involved in design stage.", "Commissioned equipment (FAT & SAT).", "Provided troubleshooting support."],
-                    skills: ["Equipment Design Input", "Commissioning (FAT, SAT)", "Troubleshooting"],
+                    skills: ["Equipment Design", "Commissioning (FAT, SAT)", "Troubleshooting", "Data Storage Manufacturing"],
                     businessImpact: "Increased recovery of usable disks, reducing waste and improving overall yield.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -714,10 +860,10 @@
                 details: {
                     objective: "Expand FCS capabilities to Stage 2 in ALUM, Plating & Polish areas, enhancing WIP count, traceability, and DMR systems.",
                     achievements: ["Established WIP count system.", "Improved part traceability.", "Implemented DMR system.", "Integrated data machines with IT database.", "Introduced new equipment (IWTS, GWTS, PWTS, PGTS, AUTOSORT & SCRAP STATION)."],
-                    skills: ["FCS Implementation", "WIP Management", "Part Traceability", "DMR Systems", "System Integration", "New Equipment Introduction"],
+                    skills: ["Factory Control Systems (FCS)", "WIP Control", "Data Traceability", "DMR Systems", "System Integration", "New Equipment Introduction", "Data Storage Manufacturing"],
                     businessImpact: "Provided more comprehensive manufacturing control and data visibility across key production areas.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -730,10 +876,10 @@
                 details: {
                     objective: "Successfully install, commission, and qualify the HP Auto Nesta 10 Line, a fully automated line integrating 13 sub-modules for printer ink cartridge assembly.",
                     achievements: ["Participated in installation, commissioning, and buyoff.", "Performed process qualification.", "Line controlled by HP HMI SCADA System linked to Singapore server."],
-                    skills: ["Equipment Installation", "Commissioning", "Process Qualification", "Automated Systems (AB PLC, Epson/Adept Robot, Conveyors, Laser Welding, PnP)", "SCADA"],
+                    skills: ["Equipment Installation", "Commissioning", "Process Qualification", "Automated Assembly Machines", "PLC Programming (Allen Bradley)", "Robotics (Epson/Adept)", "SCADA", "Laser Welding"],
                     businessImpact: "Enabled high-volume, automated production of printer ink cartridges.",
                     challenges: ["Integrating 13 complex sub-modules.", "Ensuring robust performance of a fully automated line."],
-                    vb: ["N/A (Details from CV)"]
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -746,10 +892,10 @@
                 details: {
                     objective: "Transform a manual slurry centralized system to a fully automated system to improve process control, monitoring, and efficiency.",
                     achievements: ["Implemented new features including automated pH checking.", "Integrated ultrasonic level sensors and flow meters for usage monitoring.", "Enabled automated valve and backup pump switching.", "Developed a comprehensive process monitoring control system."],
-                    skills: ["System Design", "Automation Implementation", "Process Control", "Sensor Integration", "PLC Programming (Implied)"],
+                    skills: ["System Design", "Automation", "Process Control", "Sensor Integration", "Data Storage Manufacturing", "Process Enhancement"],
                     businessImpact: "Increased yield performance by 12% by reducing errors during chemical makeup and supply, and improved overall process reliability.",
                     challenges: ["Integrating various new sensors and control mechanisms into an existing system.", "Ensuring reliability of the new automated processes."],
-                    vb: ["N/A (Details from CV)"]
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -762,10 +908,10 @@
                 details: {
                     objective: "Improve chemical supply for polisher machines by transitioning from individual tanks to a centralized, fully automated system.",
                     achievements: ["Designed piping layout.", "Implemented pumping system and alert system.", "Fully automated makeup, transferring, and chemical supply processes."],
-                    skills: ["System Design", "Automation", "Piping Layout", "Process Engineering"],
+                    skills: ["System Design", "Automation", "Piping Layout", "Process Enhancement", "Data Storage Manufacturing"],
                     businessImpact: "Reduced human error in chemical handling, leading to more consistent processing and potentially improved yield/quality.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -778,10 +924,10 @@
                 details: {
                     objective: "Establish a new cover coating thin film spraying line.",
                     achievements: ["Designed wiring and PLC program for the automatic spraying line.", "Designed the spraying booth.", "Line included Nordson Bell Gun Spraying, pneumatic system, servo-controlled conveyor, and PLC-controlled oven."],
-                    skills: ["Equipment Installation", "Commissioning", "PLC Programming", "System Design (Wiring, Booth)", "Process Control"],
+                    skills: ["Equipment Installation", "Commissioning", "PLC Programming", "System Design", "Process Control", "Servo Motor", "Data Storage Manufacturing"],
                     businessImpact: "Enabled in-house thin film coating capabilities for hard disk covers.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             },
             {
@@ -794,10 +940,10 @@
                 details: {
                     objective: "Implement new Gasket Dispensing Machines (GDM) for precise gasket plotting on 2.5\" hard disk covers.",
                     achievements: ["Designed electrical wiring.", "Installed Adept Robot.", "Programmed PLC for automatic gasket dispensing.", "Machine included Adept Python 3-axis Robot, 2 stations (4 cavities each), 3 main modules (Loading, Dispensing, Unloading), pneumatic system, Fuji Servo Motor, and touch screen control."],
-                    skills: ["Equipment Installation", "Commissioning", "Robotics (Adept Python)", "PLC Programming", "Servo Control", "System Design"],
+                    skills: ["Equipment Installation", "Commissioning", "Robotics (ADEPT)", "PLC Programming (Panasonic)", "Servo Motor", "System Design", "Gasket Dispensing Machines (GDM)", "Data Storage Manufacturing"],
                     businessImpact: "Established automated precision gasket plotting capability for smaller form factor hard disk covers.",
-                    challenges: ["N/A (Details from CV)"],
-                    vb: ["N/A (Details from CV)"]
+                    challenges: "N/A (Details from CV)",
+                    vb: "N/A (Details from CV)"
                 }
             }
         ];
@@ -808,11 +954,13 @@
             { degree: "Sijil Pelajaran Malaysia (SPM)", university: "Sekolah Menengah Teknik Kuala Lumpur", period: "1999 - 2000" }
         ];
 
+        // --- UPDATED workExperienceData with 'skills' array for filtering ---
         const workExperienceData = [
             { 
-                role: "Senior Manager, Molding & Tooling Engineering", 
+                role: "Senior Manager,Molding & Tooling Engineering", 
                 company: "Alcon Johor Sdn Bhd", 
                 period: "Jan 2025 - Present", 
+                skills: ["Team Management", "Strategic Direction", "Investment Projects", "cGMP", "HSE", "Talent Development", "Continuous Improvement", "Automation", "Maintenance Management", "Process Enhancement"],
                 details: `
                     <p class="mb-2">Oversaw the Molding & Tooling Engineering Department, responsible for maintaining and optimizing fully automated lens molding and casting lines. Reported directly to the Engineering Director while leading a team of 38 (2 Manager I, 1 Senior Engineer, 1 Engineer, 34 Technicians).</p>
                     <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
@@ -830,6 +978,7 @@
                 role: "Senior Manager, Automation & Control Engineering", 
                 company: "Alcon Johor Sdn Bhd", 
                 period: "Dec 2023 - Jan 2025", 
+                skills: ["Team Management", "Strategic Direction", "Project Management", "cGMP", "HSE", "Cost Management", "Talent Development", "Vendor Management", "MES Implementation", "SCADA"],
                 details: `
                     <p class="mb-2">Led and managed the Automation Control, MES, and SCADA teams. Reported to the Engineering Director, leading a team of 10 (2 Associate Managers, 1 Senior Engineer, 5 Engineers, 2 Technicians).</p>
                     <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
@@ -848,6 +997,7 @@
                 role: "Control Engineering Manager", 
                 company: "Alcon Johor Sdn Bhd", 
                 period: "Sep 2023 - Nov 2024", 
+                skills: ["Team Management", "Strategic Direction", "Project Management", "Cost Management", "Compliance", "MES Implementation", "SCADA"],
                 details: `<p class="mb-2">Responsibilities similar to Senior Manager, Automation & Control Engineering, focusing on leading the Control Engineering team and strategic project execution.</p>
                           <p>Continued to drive initiatives for technical availability, cost efficiency, and compliance within the Control Engineering scope.</p>`
             }, 
@@ -855,6 +1005,7 @@
                 role: "Associate Manager - Control", 
                 company: "Alcon Johor Sdn Bhd", 
                 period: "Apr 2023 - Aug 2023", 
+                skills: ["Team Management", "Project Management", "Automation", "MES Implementation", "SCADA"],
                 details: `<p class="mb-2">Stepped into a managerial role within the Control Engineering department, assisting in leading the team and managing automation projects.</p>
                           <p>Focused on supporting the team in automation control, MES, and SCADA systems, and contributing to project planning and execution.</p>`
             },
@@ -862,6 +1013,7 @@
                 role: "Staff Engineer - Control", 
                 company: "Alcon Johor Sdn Bhd", 
                 period: "Jan 2022 - Mar 2023", 
+                skills: ["Technical Support", "Change Control", "Automation", "URS", "FDS", "FMEA", "Python", "SQL", "MES Implementation", "PLC Programming", "System Design"],
                 details: `
                     <p class="mb-2">Led technical support on control systems for site's manufacturing, ensuring minimum downtime and driving continuous improvement.</p>
                     <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
@@ -880,6 +1032,7 @@
                 role: "Staff Engineer - Vision", 
                 company: "Alcon Johor Sdn Bhd", 
                 period: "Apr 2019 - Dec 2021", 
+                skills: ["Vision Systems", "CSV", "Technical Support", "Change Control", "URS", "FDS", "FRA", "IOPQ", "Optical Solutions", "Validation", "NPI/NPD"],
                 details: `
                     <p class="mb-2">Person in-charge for Vision systems (Medical Device - Vision and CSV) for Molding and Finishing departments.</p>
                     <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
@@ -899,6 +1052,7 @@
                 role: "Senior Engineer", 
                 company: "Seagate International (Johor) Sdn Bhd", 
                 period: "Apr 2014 - Mar 2019", 
+                skills: ["Factory Control Systems (FCS)", "Project Lead", "Data Traceability", "WIP Control", "Commissioning (FAT, SAT)", "PLC Programming (OMRON)", "HMI Development", "VB.net", "System Design", "Troubleshooting"],
                 details: `
                     <p class="mb-2">Responsible for establishing and maintaining Factory Control System (FCS) for manufacturing part traceability and WIP control.</p>
                     <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
@@ -918,6 +1072,7 @@
                 role: "Process & Maintenance Engineer", 
                 company: "Foxconn Malaysia Sdn Bhd", 
                 period: "Dec 2012 - Apr 2014", 
+                skills: ["Maintenance Management", "Team Management", "Automated Assembly Machines", "Six Sigma", "Cpk", "FMEA", "TPM", "Lean Manufacturing", "Process Qualification", "Vendor Management"],
                 details: `
                     <p class="mb-2">Part of Engineering team for Auto Nesta 10 Line. Led and managed a team to ensure optimal condition of fully automated production equipment (20 ppm).</p>
                     <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
@@ -937,6 +1092,7 @@
                 role: "Equipment Engineer", 
                 company: "WD Media Sdn Bhd", 
                 period: "Jul 2009 - Dec 2012", 
+                skills: ["Equipment Engineering", "Team Management", "Maintenance Management", "Robotics", "Vision Control System", "Capital Budget", "Project Management", "Process Enhancement", "Automation"],
                 details: `
                     <p class="mb-2">Under Polisher Equipment Department. Led equipment team (4 Sr. Technicians, 6 Technicians) to support and maintain automated machines.</p>
                     <h4 class="modal-section-title">Key Responsibilities & Functions:</h4>
@@ -956,6 +1112,7 @@
                 role: "Senior Engineer", 
                 company: "JCY HDD Technology Sdn Bhd", 
                 period: "Aug 2006 - Jul 2009 (Started as Engineer: Aug 2006 - Jan 2008)", 
+                skills: ["Team Management", "Process Control", "NPI/NPD", "Gasket Dispensing Machines (GDM)", "PLC Programming (Panasonic)", "Robotics (ADEPT)", "Troubleshooting", "System Design", "Equipment Installation"],
                 details: `
                     <p class="mb-2">As Cover Engineering Leader (from Feb 2008), led a team of 13. Responsible for FIPG Engineering Team.</p>
                     <h4 class="modal-section-title">Key Responsibilities & Functions (as Sr. Engineer):</h4>
@@ -978,232 +1135,467 @@
 
 
         const orgTransformationData = { 
-            introduction: "As Control Engineering Manager, spearheaded an organizational shift by updating the Control Engineering Org Chart, expanding roles for E3 engineers to foster leadership and cross-functional expertise.",
-            keyGoals: [
-                "Broaden E3 Leadership: Elevate E3s to lead entire sections, enhancing decision-making.",
-                "Develop Cross-Functional Skills: Equip E3s with multi-domain understanding (PLC, Vision, MES).",
-                "Foster Team Engagement: Encourage E3 mentorship of technicians for a cohesive team."
-            ],
-            keyBenefits: [
-                "Enhanced Leadership Pipeline within Control Engineering",
-                "Improved Team Efficiency & Holistic Understanding in automation projects",
-                "Stronger Knowledge Transfer & Professional Development for E1-E3 engineers"
-            ],
-            conclusion: [
-                "E3 engineers were positioned as pivotal technical leads, primed for future management within their domain.",
-                "Enhanced cross-departmental collaboration boosted operational resilience for control systems.",
-                "Structured mentoring cultivated leadership and technical growth across the team."
-            ]
+            introduction: {
+                title: "Introduction",
+                content: `<p class="text-gray-700 mb-4 leading-relaxed">As Control Engineering Manager, I spearheaded an organizational shift by updating the Control Engineering Org Chart. This change expanded the roles for E3 engineers, deliberately fostering leadership and cross-functional expertise to build a more resilient and capable team.</p>`
+            },
+            keyGoals: {
+                title: "Key Goals",
+                content: `<ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
+                            <li><strong>Broaden E3 Leadership:</strong> Elevate E3s to lead entire sections, not just individual projects, enhancing their decision-making and ownership.</li>
+                            <li><strong>Develop Cross-Functional Skills:</strong> Equip E3s with a multi-domain understanding across PLC, Vision, and MES to break down technical silos.</li>
+                            <li><strong>Foster Team Engagement:</strong> Encourage E3 mentorship of E1/E2 engineers and technicians to create a cohesive, knowledge-sharing environment.</li>
+                         </ul>`
+            },
+            keyBenefits: {
+                title: "Benefits",
+                content: `<ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
+                            <li><strong>Enhanced Leadership Pipeline:</strong> Created a clear development path, preparing high-performing E3s for future management roles within Control Engineering.</li>
+                            <li><strong>Improved Team Efficiency:</strong> Enabled a more holistic understanding in automation projects, leading to faster, more integrated solutions.</li>
+                            <li><strong>Stronger Knowledge Transfer:</strong> Systematized professional development, empowering technicians and junior engineers with guidance from seasoned E3s.</li>
+                         </ul>`
+            },
+            conclusion: {
+                title: "Impact",
+                content: `<ul class="list-disc list-inside text-gray-700 space-y-2">
+                            <li>E3 engineers were successfully positioned as pivotal technical leads, primed for future management within their domain.</li>
+                            <li>Enhanced cross-departmental collaboration boosted operational resilience for all critical control systems.</li>
+                            <li>The structured mentoring cultivated both leadership and technical growth, elevating the entire team's capability.</li>
+                         </ul>`
+            }
         };
         
         // Updated skills set from CV
         const allSkills = new Set([
             "Equipment Engineering", "Process Enhancement", "Maintenance Management", "Factory Control Systems (FCS)", "Continuous Improvement",
-            "Project Management", "System Commissioning", "Automated Assembly Machines", "Six Sigma", "Cpk", "FMEA", "TPM", "Lean Manufacturing",
+            "Project Management", "System Commissioning", "Automated AssemblyMachines", "Six Sigma", "Cpk", "FMEA", "TPM", "Lean Manufacturing",
             "Mechanical Part Design & Modification", "Fixture & Jig Design", "Machine Retrofit",
             "CAD (AutoCAD, SolidWorks)", "Statistical Process Control (SPC)", "Work Instructions", "DOE",
-            "PLC Programming (Mitsubishi, Panasonic, Omron, Keyence, Beckhoff, Allen Bradley)",
-            "HMI Development", "SCADA (Wonderware, Iconics)", "MES Implementation",
-            "Servo Motor & Inverter Programming (FUJI, Mitsubishi)", "Robotics (ADEPT)",
-            "Programming Languages (Visual Basic, Python, C#, C)", "Database Management (MSSQL, PostgreSQL, SQLite)",
+            "PLC Programming", "PLC Programming (OMRON)", "PLC Programming (Panasonic)", "PLC Programming (Allen Bradley)",
+            "HMI Development", "SCADA", "SCADA (Wonderware)", "MES Implementation",
+            "Servo Motor", "Robotics", "Robotics (ADEPT)", "Robotics (Epson/Adept)",
+            "Programming Languages (Visual Basic, Python, C#, C)", "VB.net", "Python", "SQL", "Database Management",
             "Data Visualization (Node-Red, Grafana, Tableau)",
-            "Vision Systems (Omron, Keyence, Cognex, Basler)", "Custom Vision System Development", "Optical Solutions",
-            "Technical Leadership", "Team Management", "Budget Management", "Vendor Management", "Stakeholder Alignment",
-            "cGMP", "HSE Regulations", "Medical Device Manufacturing", "Data Storage Manufacturing"
+            "Vision Systems", "Vision Control System", "Custom Vision System Development", "Optical Solutions", "CSV",
+            "Technical Leadership", "Team Management", "Budget Management", "Vendor Management", "Stakeholder Alignment", "Strategic Direction",
+            "cGMP", "HSE", "Medical Device Manufacturing", "Data Storage Manufacturing", "Compliance",
+            "Cost Management", "Talent Development", "Investment Projects", "Project Lead", "Technical Support", "ChangeControl",
+            "URS", "FDS", "FRA", "IOPQ", "Validation", "Qualification", "NPI/NPD", "Process Control", "Troubleshooting", "System Design",
+            "Equipment Installation", "Commissioning (FAT, SAT)", "Gasket Dispensing Machines (GDM)", "Data Traceability", "WIP Control"
         ]);
+        
 
+        // --- MAIN SCRIPT ---
 
         document.addEventListener('DOMContentLoaded', () => {
+            // --- GLOBAL STATE ---
+            let currentActiveSkill = null;
+
+            // --- DOM REFERENCES ---
             const projectFeaturesContainer = document.getElementById('project-features-container');
-            const workExperienceContainer = document.getElementById('work-experience-content'); // Target for static card items
+            const workExperienceContainer = document.getElementById('work-experience-content');
+            const educationContainer = document.getElementById('education-content');
+            const orgContentContainer = document.getElementById('org-transformation-content');
+            const skillsSummaryContainer = document.getElementById('skills-summary');
             const modal = document.getElementById('details-modal');
             const modalTitle = document.getElementById('modal-title');
             const modalBody = document.getElementById('modal-body');
             const closeModalBtn = document.getElementById('close-modal');
-            const educationContainer = document.getElementById('education-content');
-            const orgContent = document.getElementById('org-transformation-content');
-            const skillsSummaryContainer = document.getElementById('skills-summary');
+            const clearFilterBtn = document.getElementById('clear-filter-btn');
 
-            // --- Reveal on Scroll for Static Cards & Section Titles ---
-            const staticRevealElements = document.querySelectorAll('.static-card, .section-title');
-            const staticObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                        staticObserver.unobserve(entry.target); 
-                    }
+            // --- POPULATION FUNCTIONS ---
+
+            function populateEducation() {
+                educationData.forEach(edu => {
+                    const item = document.createElement('div');
+                    item.className = 'education-item';
+                    item.innerHTML = `
+                        <p class="item-title text-xl">${edu.degree}</p>
+                        <p class="item-subtitle">${edu.university}</p>
+                        <p class="item-date">${edu.period}</p>
+                    `;
+                    educationContainer.appendChild(item);
                 });
-            }, { threshold: 0.1 });
-            staticRevealElements.forEach(el => staticObserver.observe(el));
+            }
 
-            // --- Populate Education Section (Remains as static card content) ---
-            educationData.forEach(edu => {
-                const item = document.createElement('div');
-                item.className = 'education-item';
-                item.innerHTML = `
-                    <p class="item-title text-xl">${edu.degree}</p>
-                    <p class="item-subtitle">${edu.university}</p>
-                    <p class="item-date">${edu.period}</p>
-                `;
-                educationContainer.appendChild(item);
-            });
+            function populateWorkExperience() {
+                workExperienceData.forEach(job => {
+                    const item = document.createElement('div');
+                    // Add filterable classes
+                    item.className = 'work-experience-item filterable-item';
+                    // Add data-skills attribute for filtering
+                    item.dataset.skills = job.skills.join(',');
+                    
+                    const titleElement = document.createElement('p');
+                    titleElement.className = 'item-title text-xl'; // Clickable style applied in CSS
+                    titleElement.textContent = job.role;
+                    // Attach event listener for modal popup
+                    titleElement.addEventListener('click', () => {
+                        openModal(
+                            `${job.role} at ${job.company}`,
+                            job.details || '<p>Details for this role are summarized in the CV.</p>'
+                        );
+                    });
 
-            // --- Populate Work Experience in Static Card with Clickable Items for Modal ---
-            workExperienceData.forEach(job => {
-                const item = document.createElement('div');
-                item.className = 'work-experience-item';
-                
-                const titleElement = document.createElement('p');
-                titleElement.className = 'item-title text-xl'; // Clickable style applied in CSS
-                titleElement.textContent = job.role;
-                // Attach event listener for modal popup
-                titleElement.addEventListener('click', () => {
-                    modalTitle.textContent = `${job.role} at ${job.company}`; // Set modal title
-                    modalBody.innerHTML = job.details || '<p>Details for this role are summarized in the CV.</p>'; // Set modal body content
-                    modal.classList.add('active'); // Show the modal
+                    item.appendChild(titleElement);
+
+                    const companyElement = document.createElement('p');
+                    companyElement.className = 'item-subtitle';
+                    companyElement.textContent = job.company;
+                    item.appendChild(companyElement);
+
+                    const periodElement = document.createElement('p');
+                    periodElement.className = 'item-date';
+                    periodElement.textContent = job.period;
+                    item.appendChild(periodElement);
+                    
+                    workExperienceContainer.appendChild(item);
                 });
+            }
 
-                item.appendChild(titleElement); // Add the clickable title to the item
+            function populateProjects() {
+                projectsData.forEach(project => {
+                    const projectSection = document.createElement('div');
+                    // Add filterable classes
+                    projectSection.className = 'project-feature-section filterable-item';
+                    projectSection.dataset.projectId = project.id; 
+                    // Add data-skills attribute for filtering
+                    projectSection.dataset.skills = project.details.skills.join(',');
 
-                // Create and append company subtitle
-                const companyElement = document.createElement('p');
-                companyElement.className = 'item-subtitle';
-                companyElement.textContent = job.company;
-                item.appendChild(companyElement);
+                    const imageUrl = `https://placehold.co/1200x800/001f3f/ffffff?text=${encodeURIComponent(project.imageTheme || 'Project Theme')}&font=inter`;
+                    projectSection.style.backgroundImage = `url('${imageUrl}')`;
 
-                // Create and append period date
-                const periodElement = document.createElement('p');
-                periodElement.className = 'item-date';
-                periodElement.textContent = job.period;
-                item.appendChild(periodElement);
-                
-                workExperienceContainer.appendChild(item); // Add the complete item to the container
-            });
-
-
-            // --- Populate Project Feature Sections (Apple Style) ---
-            projectsData.forEach(project => {
-                const projectSection = document.createElement('div');
-                projectSection.className = 'project-feature-section';
-                projectSection.dataset.projectId = project.id; 
-
-                const imageUrl = `https://placehold.co/1200x800/001f3f/ffffff?text=${encodeURIComponent(project.imageTheme || 'Project Theme')}&font=inter`;
-                projectSection.style.backgroundImage = `url('${imageUrl}')`;
-
-                let ratingHtml = '';
-                if (project.rating) {
-                    for (let i = 0; i < 5; i++) {
-                        ratingHtml += `<span class="rating-star">${i < project.rating ? '★' : '☆'}</span>`;
-                    }
-                } else {
-                    ratingHtml = `<span class="text-sm text-gray-300">(Rating not applicable for this CV entry)</span>`;
-                }
-
-                projectSection.innerHTML = `
-                    <h3 class="project-title">${project.title}</h3>
-                    <p class="project-priority">${project.priority}</p>
-                    <p class="project-summary-text">${project.shortSummary}</p>
-                    <div class="project-rating-display">${ratingHtml}</div>
-                `;
-                
-                projectSection.addEventListener('click', () => {
-                    modalTitle.textContent = project.title; // Set modal title to project title
-                    let detailsHtml = `<p class="text-gray-500 text-base mb-3"><strong>Context/Initiative:</strong> ${project.priority}</p>`;
-                    if (project.details.objective) {
-                        detailsHtml += `<h4 class="modal-section-title">Objective:</h4><p class="mb-3">${project.details.objective}</p>`;
-                    }
-                    
-                    if (project.details.achievements && project.details.achievements.length > 0) {
-                        detailsHtml += `<h4 class="modal-section-title">Key Achievements/Activities:</h4><ul class="list-disc list-inside space-y-1 pl-4 mb-3">`;
-                        project.details.achievements.forEach(ach => detailsHtml += `<li>${ach}</li>`);
-                        detailsHtml += `</ul>`;
-                    }
-
-                    if (project.details.skills && project.details.skills.length > 0) {
-                        detailsHtml += `<h4 class="modal-section-title">Skills Utilized:</h4><div class="flex flex-wrap gap-2 mb-3">`;
-                        project.details.skills.forEach(skill => detailsHtml += `<span class="skill-tag">${skill}</span>`);
-                        detailsHtml += `</div>`;
-                    }
-
-                    if (project.details.businessImpact) {
-                        detailsHtml += `<h4 class="modal-section-title">Business Impact:</h4><p class="mb-3"><span class="impact-tag">${project.details.businessImpact}</span></p>`;
-                    }
-                    
-                    if (project.details.challenges && project.details.challenges !== "N/A (Details from CV)" && project.details.challenges.length > 0) {
-                        detailsHtml += `<h4 class="modal-section-title">Challenges Faced:</h4><div class="flex flex-wrap gap-2 mb-3">`;
-                        if (Array.isArray(project.details.challenges)) {
-                            project.details.challenges.forEach(ch => detailsHtml += `<span class="challenge-tag">${ch}</span>`);
-                        } else {
-                             detailsHtml += `<span class="challenge-tag">${project.details.challenges}</span>`;
+                    let ratingHtml = '';
+                    if (project.rating) {
+                        for (let i = 0; i < 5; i++) {
+                            ratingHtml += `<span class="rating-star">${i < project.rating ? '★' : '☆'}</span>`;
                         }
-                        detailsHtml += `</div>`;
-                    }
-                    
-                    if (project.details.vb && project.details.vb !== "N/A (Details from CV)") {
-                        const vbText = Array.isArray(project.details.vb) ? project.details.vb.join('; ') : project.details.vb;
-                        detailsHtml += `<h4 class="modal-section-title">Values & Behaviors Demonstrated:</h4><p><span class="vb-tag">${vbText}</span></p>`;
-                    }
-                    
-                    modalBody.innerHTML = detailsHtml;
-                    modal.classList.add('active');
-                });
-
-                projectFeaturesContainer.appendChild(projectSection);
-            });
-
-            // --- Intersection Observer for Project Feature Sections ONLY ---
-            const projectFeatureSections = document.querySelectorAll('.project-feature-section');
-            const featureObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active-slide');
                     } else {
-                        entry.target.classList.remove('active-slide'); 
+                        ratingHtml = `<span class="text-sm text-gray-300">(Rating not applicable for this CV entry)</span>`;
+                    }
+
+                    projectSection.innerHTML = `
+                        <h3 class="project-title">${project.title}</h3>
+                        <p class="project-priority">${project.priority}</p>
+                        <p class="project-summary-text">${project.shortSummary}</p>
+                        <div class="project-rating-display">${ratingHtml}</div>
+                    `;
+                    
+                    projectSection.addEventListener('click', () => {
+                        let detailsHtml = `<p class="text-gray-500 text-base mb-3"><strong>Context/Initiative:</strong> ${project.priority}</p>`;
+                        if (project.details.objective) {
+                            detailsHtml += `<h4 class="modal-section-title">Objective:</h4><p class="mb-3">${project.details.objective}</p>`;
+                        }
+                        
+                        if (project.details.achievements && project.details.achievements.length > 0) {
+                            detailsHtml += `<h4 class="modal-section-title">Key Achievements/Activities:</h4><ul class="list-disc list-inside space-y-1 pl-4 mb-3">`;
+                            project.details.achievements.forEach(ach => detailsHtml += `<li>${ach}</li>`);
+                            detailsHtml += `</ul>`;
+                        }
+
+                        if (project.details.skills && project.details.skills.length > 0) {
+                            detailsHtml += `<h4 class="modal-section-title">Skills Utilized:</h4><div class="flex flex-wrap gap-2 mb-3">`;
+                            project.details.skills.forEach(skill => detailsHtml += `<span class="skill-tag">${skill}</span>`);
+                            detailsHtml += `</div>`;
+                        }
+
+                        if (project.details.businessImpact) {
+                            detailsHtml += `<h4 class="modal-section-title">Business Impact:</h4><p class="mb-3"><span class="impact-tag">${project.details.businessImpact}</span></p>`;
+                        }
+                        
+                        if (project.details.challenges && project.details.challenges !== "N/A (Details from CV)" && project.details.challenges.length > 0) {
+                            detailsHtml += `<h4 class="modal-section-title">Challenges Faced:</h4><div class="flex flex-wrap gap-2 mb-3">`;
+                            if (Array.isArray(project.details.challenges)) {
+                                project.details.challenges.forEach(ch => detailsHtml += `<span class="challenge-tag">${ch}</span>`);
+                            } else {
+                                detailsHtml += `<span class="challenge-tag">${project.details.challenges}</span>`;
+                            }
+                            detailsHtml += `</div>`;
+                        }
+                        
+                        if (project.details.vb && project.details.vb !== "N/A (Details from CV)") {
+                            const vbText = Array.isArray(project.details.vb) ? project.details.vb.join('; ') : project.details.vb;
+                            detailsHtml += `<h4 class="modal-section-title">Values & Behaviors Demonstrated:</h4><p><span class="vb-tag">${vbText}</span></p>`;
+                        }
+                        
+                        openModal(project.title, detailsHtml);
+                    });
+
+                    projectFeaturesContainer.appendChild(projectSection);
+                });
+            }
+
+            function populateOrgTransformationTabs() {
+                const tabNav = document.createElement('nav');
+                tabNav.className = 'tab-nav';
+                
+                const tabContent = document.createElement('div');
+                tabContent.className = 'tab-content-container';
+
+                // Create tabs and panes
+                Object.keys(orgTransformationData).forEach((key, index) => {
+                    const item = orgTransformationData[key];
+                    const isActive = index === 0;
+
+                    // Create tab button
+                    const tabButton = document.createElement('button');
+                    tabButton.className = `tab-btn ${isActive ? 'active' : ''}`;
+                    tabButton.dataset.tab = key;
+                    tabButton.textContent = item.title;
+                    tabNav.appendChild(tabButton);
+
+                    // Create tab pane
+                    const pane = document.createElement('div');
+                    pane.className = `tab-pane ${isActive ? 'active' : ''}`;
+                    pane.id = key;
+                    pane.innerHTML = item.content;
+                    tabContent.appendChild(pane);
+                });
+
+                orgContentContainer.appendChild(tabNav);
+                orgContentContainer.appendChild(tabContent);
+
+                // Add event listener for tab navigation
+                tabNav.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('tab-btn')) {
+                        const tabId = e.target.dataset.tab;
+                        
+                        // Update tab buttons
+                        tabNav.querySelectorAll('.tab-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        e.target.classList.add('active');
+
+                        // Update tab panes
+                        tabContent.querySelectorAll('.tab-pane').forEach(pane => {
+                            pane.classList.remove('active');
+                        });
+                        tabContent.querySelector(`#${tabId}`).classList.add('active');
                     }
                 });
-            }, { threshold: 0.4 }); 
+            }
 
-            projectFeatureSections.forEach(section => featureObserver.observe(section));
-            
-            // Populate Organizational Transformation
-            let orgHtml = `<p class="text-gray-700 mb-4 leading-relaxed">${orgTransformationData.introduction}</p>`;
-            orgHtml += `<h4 class="text-xl font-semibold text-[#004375] mt-5 mb-2">Key Goals Achieved:</h4><ul class="list-disc list-inside text-gray-700 mb-4 space-y-1">`;
-            orgTransformationData.keyGoals.forEach(goal => orgHtml += `<li>${goal}</li>`);
-            orgHtml += `</ul>`;
-            orgHtml += `<h4 class="text-xl font-semibold text-[#004375] mt-5 mb-2">Primary Benefits:</h4><ul class="list-disc list-inside text-gray-700 mb-4 space-y-1">`;
-            orgTransformationData.keyBenefits.forEach(benefit => orgHtml += `<li>${benefit}</li>`);
-            orgHtml += `</ul>`;
-            orgHtml += `<h4 class="text-xl font-semibold text-[#004375] mt-5 mb-2">Summary of Impact:</h4><ul class="list-disc list-inside text-gray-700 space-y-1">`;
-            orgTransformationData.conclusion.forEach(point => orgHtml += `<li>${point}</li>`);
-            orgHtml += `</ul>`;
-            orgContent.innerHTML = orgHtml;
+            function populateSkills() {
+                const sortedSkills = Array.from(allSkills).sort();
+                sortedSkills.forEach(skill => {
+                    const skillTag = document.createElement('span');
+                    skillTag.className = 'skill-tag text-base px-3 py-1.5'; 
+                    skillTag.textContent = skill;
+                    skillTag.dataset.skill = skill; // Add data-skill attribute
+                    skillsSummaryContainer.appendChild(skillTag);
+                });
+            }
 
-            // Populate Skills Summary
-            const sortedSkills = Array.from(allSkills).sort();
-            sortedSkills.forEach(skill => {
-                const skillTag = document.createElement('span');
-                skillTag.className = 'skill-tag text-base px-3 py-1.5'; 
-                skillTag.textContent = skill;
-                skillsSummaryContainer.appendChild(skillTag);
-            });
+            // --- MODAL FUNCTIONS ---
 
-            // Modal close functionality
-            closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
-            modal.addEventListener('click', (event) => {
-                if (event.target === modal) {
-                    modal.classList.remove('active');
-                }
-            });
-            window.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape' && modal.classList.contains('active')) {
-                    modal.classList.remove('active');
-                }
-            });
+            function openModal(title, bodyHtml) {
+                modalTitle.textContent = title;
+                modalBody.innerHTML = bodyHtml;
+                modal.classList.add('active');
+            }
+
+            function closeModal() {
+                modal.classList.remove('active');
+            }
+
+            function setupModalListeners() {
+                closeModalBtn.addEventListener('click', closeModal);
+                modal.addEventListener('click', (event) => {
+                    if (event.target === modal) {
+                        closeModal();
+                    }
+                });
+                window.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && modal.classList.contains('active')) {
+                        closeModal();
+                    }
+                });
+            }
+
+            // --- SCROLL OBSERVERS ---
+
+            function setupScrollObservers() {
+                // Observer for static cards and titles
+                const staticRevealElements = document.querySelectorAll('.static-card, .section-title');
+                const staticObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            staticObserver.unobserve(entry.target); 
+                        }
+                    });
+                }, { threshold: 0.1 });
+                staticRevealElements.forEach(el => staticObserver.observe(el));
+
+                // Observer for project feature sections
+                const projectFeatureSections = document.querySelectorAll('.project-feature-section');
+                const featureObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('active-slide');
+                        } else {
+                            entry.target.classList.remove('active-slide'); 
+                        }
+                    });
+                }, { threshold: 0.4 }); 
+                projectFeatureSections.forEach(section => featureObserver.observe(section));
+            }
+
+            // --- INTERACTIVITY SETUP ---
+
+            function setupSkillFiltering() {
+                const allSkillTags = skillsSummaryContainer.querySelectorAll('.skill-tag');
+                const allFilterableItems = document.querySelectorAll('.filterable-item');
+
+                skillsSummaryContainer.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('skill-tag')) {
+                        const clickedSkill = e.target.dataset.skill;
+
+                        if (clickedSkill === currentActiveSkill) {
+                            // Deactivate filter
+                            currentActiveSkill = null;
+                            e.target.classList.remove('active-filter');
+                            clearFilterBtn.style.display = 'none';
+                            allFilterableItems.forEach(item => item.classList.remove('dimmed'));
+                        } else {
+                            // Activate or change filter
+                            currentActiveSkill = clickedSkill;
+                            
+                            // Update skill tag visuals
+                            allSkillTags.forEach(tag => tag.classList.remove('active-filter'));
+                            e.target.classList.add('active-filter');
+                            
+                            clearFilterBtn.style.display = 'inline-block';
+
+                            // Apply filter to items
+                            allFilterableItems.forEach(item => {
+                                const itemSkills = item.dataset.skills.split(',');
+                                if (itemSkills.includes(currentActiveSkill)) {
+                                    item.classList.remove('dimmed');
+                                } else {
+                                    item.classList.add('dimmed');
+                                }
+                            });
+                        }
+                    }
+                });
+
+                // Clear filter button logic
+                clearFilterBtn.addEventListener('click', () => {
+                    currentActiveSkill = null;
+                    clearFilterBtn.style.display = 'none';
+                    allSkillTags.forEach(tag => tag.classList.remove('active-filter'));
+                    allFilterableItems.forEach(item => item.classList.remove('dimmed'));
+                });
+            }
+
+            function setupSectionFiltering() {
+                const filterBar = document.getElementById('section-filter-bar');
+                if (!filterBar) return; // Guard clause
+
+                const allContentSections = document.querySelectorAll('.main-content-section');
+                const filterButtons = filterBar.querySelectorAll('.section-filter-btn');
+
+                filterBar.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('section-filter-btn')) {
+                        const targetId = e.target.dataset.filterTarget;
+
+                        // Update button active state immediately for feedback
+                        filterButtons.forEach(btn => btn.classList.remove('active'));
+                        e.target.classList.add('active');
+
+                        // --- NEW SCROLL LOGIC ---
+                        if (targetId === 'all') {
+                            // Scroll to the top of the page
+                            window.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
+                        } else {
+                            // Find the target section
+                            const targetSection = document.getElementById(targetId);
+                            if (targetSection) {
+                                // Calculate position: Get top of the element and subtract the filter bar's height + some margin
+                                const filterBarHeight = filterBar.offsetHeight;
+                                const targetPosition = targetSection.getBoundingClientRect().top + window.scrollY - filterBarHeight - 20; // 20px for extra space
+
+                                window.scrollTo({
+                                    top: targetPosition,
+                                    behavior: 'smooth'
+                                });
+                            }
+                        }
+
+                        // Clear the skill filter when changing main sections
+                        if (currentActiveSkill) {
+                            document.getElementById('clear-filter-btn').click();
+                        }
+                    }
+                });
+            }
+
+            // --- NEW FUNCTION for Scroll Spy ---
+            function setupScrollSpy() {
+                const filterBar = document.getElementById('section-filter-bar');
+                if (!filterBar) return;
+
+                const filterButtons = filterBar.querySelectorAll('.section-filter-btn');
+                const allContentSections = document.querySelectorAll('.main-content-section');
+                const allButton = filterBar.querySelector('.section-filter-btn[data-filter-target="all"]');
+
+                const observerOptions = {
+                    // Set rootMargin to be the height of the sticky filter bar + 21px padding
+                    // This means the section becomes "active" when it's 21px below the filter bar
+                    rootMargin: `-${filterBar.offsetHeight + 21}px 0px -50% 0px`, // Only check the top half of the screen
+                    threshold: 0
+                };
+
+                const spyObserver = new IntersectionObserver((entries) => {
+                    let foundActive = false;
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            foundActive = true;
+                            const id = entry.target.id;
+                            const activeButton = filterBar.querySelector(`.section-filter-btn[data-filter-target="${id}"]`);
+                            filterButtons.forEach(btn => btn.classList.remove('active'));
+                            if (activeButton) {
+                                activeButton.classList.add('active');
+                            }
+                        }
+                    });
+
+                    // If no sections are intersecting (e.g., user is between sections or at the very top)
+                    if (!foundActive) {
+                        // Check if we are at the top of the page
+                        if (window.scrollY < 200) { // 200px tolerance
+                            filterButtons.forEach(btn => btn.classList.remove('active'));
+                            allButton.classList.add('active');
+                        }
+                    }
+                }, observerOptions);
+
+                allContentSections.forEach(section => spyObserver.observe(section));
+            }
+
+
+            // --- INITIALIZATION ---
+
+            function init() {
+                populateEducation();
+                populateWorkExperience();
+                populateProjects();
+                populateOrgTransformationTabs();
+                populateSkills();
+                
+                setupModalListeners();
+                setupScrollObservers();
+                setupSkillFiltering();
+                setupSectionFiltering(); 
+                setupScrollSpy(); // <-- Add new function call
+            }
+
+            init();
         });
     </script>
 </body>
 </html>
-
-
-
-
